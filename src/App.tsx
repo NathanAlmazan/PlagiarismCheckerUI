@@ -1,25 +1,25 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { BrowserRouter } from "react-router-dom";
+// Router
+import Router from "./Router";
+// Custom Providers
+import { HelmetProvider } from "react-helmet-async";
+import { SidebarProvider } from "./components/contexts/SidebarContext";
+// Themes
+import CssBaseline from "@mui/material/CssBaseline";
+import ThemeProvider from "./theme/ThemeProvider";
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <ThemeProvider>
+      <CssBaseline />
+      <HelmetProvider>
+        <SidebarProvider>
+          <BrowserRouter>
+            <Router />
+          </BrowserRouter>
+        </SidebarProvider>
+      </HelmetProvider>
+    </ThemeProvider>
   );
 }
 
