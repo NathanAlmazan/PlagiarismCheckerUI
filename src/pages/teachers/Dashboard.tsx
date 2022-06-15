@@ -1,0 +1,120 @@
+// components
+import React, { useState, useEffect, useRef } from "react";
+// Components
+import { Helmet } from "react-helmet-async";
+import PageTitleWrapper from "../../components/PageTitleWrapper";
+import PageHeader from "../../components/PageHeaders/HeaderButton";
+import Container from "@mui/material/Container";
+// Utils
+import { Subject } from "../../util/base";
+import { getTeacherSubjects } from "../../util/GetRequests";
+import { createNewClassroom, createNewSubject } from "../../util/PostRequests"; 
+// Animation 
+import { AnimatePresence, motion } from "framer-motion";
+
+const SubjectList = React.lazy(() => import("../../components/classroom/SubjectList"));
+const ClassList = React.lazy(() => import("../../components/classroom/ClassList"));
+const CreateSubjectDialog = React.lazy(() => import("../../components/dialogs/CreateSubject"));
+const CreateClassDialog = React.lazy(() => import("../../components/dialogs/CreateClass"));
+const LoadingOverlay = React.lazy(() => import("../../components/SuspenseLoader/LoadingOverlay"));
+
+function Dashboard() {
+  const [subjects, setSubjects] = useState<Subject[]>([]);
+  const [selected, setSelected] = useState<Subject>();
+  const [createSub, setCreateSub] = useState<boolean>(false);
+  const [createClass, setCreateClass] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
+  const classListSection = useRef<HTMLDivElement>(null);
+
+  const handleSelectSubject = (subjectId: number) => {
+    setSelected(subjects.find(s => s.subjectId === subjectId));
+    if (classListSection.current) window.scrollTo({
+        top: classListSection.current.offsetTop,
+        behavior: 'smooth',
+    });
+  }
+
+  useEffect(() => {
+    getTeacherSubjects(6).then(data => {
+        setSubjects(state => data);
+        setSelected(state => data[0]);
+    })
+    .catch(err => console.log(err.message));
+  }, []);
+
+  const handleAddSuject = (title: string, desc: string) => {
+    setLoading(true);
+    createNewSubject(title, desc, 6).then(data => {
+        setSubjects(data);
+        setLoading(false);
+        setCreateSub(false);
+    }).catch(err => console.log(err.message));
+  }
+
+  const handleAddClass = (subjectId: number, className: string) => {
+    setLoading(true);
+    createNewClassroom(subjectId, className, 6).then(data => {
+        setSubjects(data);
+        setLoading(false);
+        setCreateClass(false);
+
+        const classSub = data.find(s => s.subjectId === subjectId)
+        if (classSub) setSelected(classSub);
+    }).catch(err => console.log(err.message));
+  }
+
+  return (
+    <>
+        <Helmet><title>Teacher Dashboard</title></Helmet>
+        <PageTitleWrapper>
+            <PageHeader 
+                title="Good Day, Nathan" 
+                subtitle="View and manage your subjects and classrooms" 
+                buttonText="Create Classroom" 
+                buttonClick={() => setCreateClass(true)}
+            />
+        </PageTitleWrapper>
+        <Container>
+
+            <SubjectList 
+                subjectList={subjects} 
+                selectSubject={handleSelectSubject} 
+                addSubject={() => setCreateSub(true)}
+                selectedSub={selected && selected.subjectId}
+            />
+
+            <AnimatePresence exitBeforeEnter>
+                <div ref={classListSection} />
+                {selected && (
+                    <motion.div
+                        key={selected.subjectId}
+                        initial={{ opacity: 0, y: 80 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 80 }}
+                        transition={{ duration: 0.5 }}
+                    >
+                        <ClassList classrooms={selected.classrooms} subject={selected.subjectTitle} />
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </Container>
+        
+        <CreateSubjectDialog 
+            open={createSub}
+            handleClose={() => setCreateSub(false)}
+            saveSubject={handleAddSuject}
+        />
+
+        <CreateClassDialog 
+            open={createClass}
+            options={subjects.map((subject) => ({ id: subject.subjectId.toString(), label: subject.subjectTitle }))}
+            handleClose={() => setCreateSub(false)}
+            saveClass={handleAddClass}
+        />
+
+        <LoadingOverlay open={loading} />
+    </>
+  )
+}
+
+export default Dashboard

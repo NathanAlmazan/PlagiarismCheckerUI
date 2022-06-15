@@ -1,24 +1,25 @@
 import React, { useState, useEffect } from 'react';
 // Components
-import LoadingOverlay from "../components/SuspenseLoader/LoadingOverlay";
+import LoadingOverlay from "../../components/SuspenseLoader/LoadingOverlay";
 import { Helmet } from 'react-helmet-async';
-import PageTitleWrapper from "../components/PageTitleWrapper";
-import PageHeader from "../components/PageHeaders/Header";
+import PageTitleWrapper from "../../components/PageTitleWrapper";
+import PageHeader from "../../components/PageHeaders/Header";
+import Container from "@mui/material/Container";
 // Utils
 import { noCase } from 'change-case';
-import { analyzeDocument, getFilePlainContent, submitPDF, deleteDocument } from '../util/GetRequests';
+import { analyzeDocument, getFilePlainContent, submitPDF, deleteDocument, saveAssignment } from '../../util/GetRequests';
 // Animation
 import { AnimatePresence, motion } from 'framer-motion';
 
-const UploadFile = React.lazy(() => import("../components/FileUpload/Upload"));
-const FileAnalyzer = React.lazy(() => import("../components/FileUpload/FileAnalyzer"));
+const UploadFile = React.lazy(() => import("../../components/FileUpload/Upload"));
+const FileAnalyzer = React.lazy(() => import("../../components/FileUpload/FileAnalyzer"));
 
 type FileInformation = {
   fileId: number, 
   fileUid: string
 }
 
-function Home() {
+function SubmitPanel() {
   const [paragraphs, setParagraphs] = useState<string[]>([]);
   const [sources, setSources] = useState<string[]>([]);
   const [textContent, setTextContent] = useState<string>("");
@@ -81,7 +82,7 @@ function Home() {
         if (cosineDistance !== null) {
           const textContent = await getFilePlainContent(document);
 
-          setSources(cosineDistance.sentencesA);
+          setSources(cosineDistance.similarSentences);
           setTextContent(textContent.message);
           setPlagiarizedFile(cosineDistance.source);
           setOriginality(100 - (cosineDistance.cosineDistance * 100));
@@ -103,6 +104,12 @@ function Home() {
     window.location.reload();
   }
 
+  const saveFile = async () => {
+    setUploaded(false);
+    if (fileInfo) await saveAssignment(7, 1, fileInfo.fileId);
+    setUploaded(true);
+  }
+
   return (
     <>
       <Helmet><title>Upload File</title></Helmet>
@@ -113,69 +120,48 @@ function Home() {
         />
       </PageTitleWrapper>
      
-      <AnimatePresence exitBeforeEnter>
-        {plagiarized ? (
-          <motion.div
-            key="analyze"
-            initial={{ opacity: 0, y: 100 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 100 }}
-            transition={{ duration: 0.3 }}
-          >
-            <FileAnalyzer 
-              paragraphs={paragraphs} 
-              originality={originality}
-              plagiarizedFile={plagiarizedFile ? plagiarizedFile : ""}
-              fileName={document ? document.name : ""}
-              totalWords={textContent.split(" ").length}
-              checkSources={checkSources} 
-              reloadPage={reloadPage}
-            />
-          </motion.div>
-        ) : (
-          <motion.div
-            key="upload"
-            initial={{ opacity: 0, y: 100 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 100 }}
-            transition={{ duration: 0.3 }}
-          >
-            <UploadFile 
-              fileName={document ? document.name : null} 
-              submitFile={handleFileChange}
-              submitForm={handleSubmit} 
-            />
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <Container>
+        <AnimatePresence exitBeforeEnter>
+          {plagiarized ? (
+            <motion.div
+              key="analyze"
+              initial={{ opacity: 0, y: 100 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 100 }}
+              transition={{ duration: 0.3 }}
+            >
+              <FileAnalyzer 
+                paragraphs={paragraphs} 
+                originality={originality}
+                plagiarizedFile={plagiarizedFile ? plagiarizedFile : ""}
+                fileName={document ? document.name : ""}
+                totalWords={textContent.split(" ").length}
+                checkSources={checkSources} 
+                reloadPage={reloadPage}
+                submitFile={saveFile}
+              />
+            </motion.div>
+          ) : (
+            <motion.div
+              key="upload"
+              initial={{ opacity: 0, y: 100 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 100 }}
+              transition={{ duration: 0.3 }}
+            >
+              <UploadFile 
+                fileName={document ? document.name : null} 
+                submitFile={handleFileChange}
+                submitForm={handleSubmit} 
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </Container>
 
       <LoadingOverlay open={!uploaded} />
-        {/* <section>
-          <form onSubmit={handleSubmit}>
-            <input type="number" placeholder="Document ID" value={documentId} onChange={handleTextChange} />
-            <input type="file" onChange={handleFileChange} />
-            <button type="submit">Analyze Document</button>
-          </form>
-        </section>
-        {fileName.length > 0 && (
-          <h3>{"Copied from: " + fileName + ".pdf"}</h3>
-        )}
-        <section>
-          {paragraphs.map((text, i) => {
-              const sentences = text.split('. ');
-
-              return (
-                  <p key={i}>
-                      {sentences.map((sentence, i) => (
-                          checkSources(sentence) ? <span key={i} style={{ backgroundColor: 'red' }}>{sentence + '. '}</span> :
-                          <span key={i}>{/\S/.test(sentence) && sentence + '. '}</span>
-                      ))}
-                  </p>
-              )
-          })}
-        </section> */}
     </>
   )
 }
 
-export default Home
+export default SubmitPanel;

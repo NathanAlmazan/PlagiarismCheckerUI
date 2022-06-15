@@ -1,11 +1,10 @@
 import axios from 'axios';
 import deleteFile from "./FirebaseServices/storage";
+import { Subject } from "./base";
 
 export type DocumentCompare = {
     cosineDistance: number,
-    similarTerms: string[],
-    sentencesA: string[],
-    sentencesB: string[],
+    similarSentences: string[],
     source?: string
 };
 
@@ -101,7 +100,7 @@ export async function analyzeDocument(documentId: number): Promise<DocumentCompa
         const cosineDistance = await getDocumentDistance(documentId, excludeDocuments);
         const comparison = await getDocumentComparison(documentId, cosineDistance.file_id);
 
-        if (comparison.sentencesA.length > 0 && comparison.sentencesB.length > 0) {
+        if (comparison.similarSentences.length > 0) {
             comparison.source = cosineDistance.fileName;
             return comparison;
         } else {
@@ -110,4 +109,25 @@ export async function analyzeDocument(documentId: number): Promise<DocumentCompa
     }
 
     return null;
+}
+
+export async function saveAssignment(studentId: number, assignId: number, fileId: number) {
+    const config = {
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    };
+    const body = JSON.stringify({ studentId, assignId, fileId });
+    await axios.post(`${process.env.REACT_APP_API_URL}/class/assignment/submit`, body, config);
+}
+
+export async function getTeacherSubjects(teacherId: number): Promise<Subject[]> {
+    const config = {
+        headers: {
+            'Accept': 'application/json'
+        }
+    };
+    
+    const response = await axios.get(`${process.env.REACT_APP_API_URL}/class/subject/find/${teacherId}`, config);
+    return response.data as Subject[];
 }

@@ -20,13 +20,14 @@ type AnalyzerProps = {
     plagiarizedFile: string,
     fileName: string,
     checkSources: (sentence: string) => boolean,
-    reloadPage: () => void
+    reloadPage: () => void,
+    submitFile: () => void
 }
 
 function FileAnalyzer(props: AnalyzerProps) {
-  const { paragraphs, originality, totalWords, plagiarizedFile, fileName, checkSources, reloadPage } = props;
+  const { paragraphs, originality, totalWords, plagiarizedFile, fileName, checkSources, reloadPage, submitFile } = props;
   return (
-    <Grid container spacing={2} sx={{ p: 3 }}>
+    <Grid container spacing={2}>
         <Grid item sm={12} lg={4} justifyContent="center" order={{ sm: 1, lg: 2 }}>
             <Paper>
                 <List>
@@ -78,8 +79,9 @@ function FileAnalyzer(props: AnalyzerProps) {
                         </Stack>
                     </ListItem>
                 </List>
-                <Stack sx={{ p: 2, width: "100%" }}>
+                <Stack direction="column" spacing={2} sx={{ p: 2, width: "100%" }}>
                     <Button variant="contained" color="primary" onClick={reloadPage} fullWidth>Submit Again</Button>
+                    <Button variant="outlined" color="primary" onClick={submitFile} fullWidth>Submit Anyway</Button>
                 </Stack>
             </Paper>
         </Grid>

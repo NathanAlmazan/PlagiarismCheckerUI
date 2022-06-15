@@ -29,7 +29,7 @@ function Upload(props: UploadProps) {
     }); 
 
   return (
-    <Grid container justifyContent="space-between" spacing={3} sx={{ p: 3 }}>
+    <Grid container justifyContent="space-between" spacing={3}>
         <Grid item xs={12} md={5} order={{ xs: 2, md: 1 }}>
             <Dropzone
                 onDrop={handleDropFile}
