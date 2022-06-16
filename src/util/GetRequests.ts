@@ -22,7 +22,7 @@ type PlainResponse = {
     message: string
 }
 
-export async function submitPDF(file: File): Promise<FileStorage> {
+export async function submitPDF(file: File, assignId: number): Promise<FileStorage> {
     const config = {
         headers: {
             'Content-Type': 'multipart/form-data'
@@ -31,6 +31,7 @@ export async function submitPDF(file: File): Promise<FileStorage> {
 
     const formData = new FormData();
     formData.append("file", file);
+    formData.append("assignId", assignId.toString());
 
     const response = await axios.post(`${process.env.REACT_APP_API_URL}/analyzer/file/extract`, formData, config);
     const newFile: FileStorage = response.data;
@@ -38,13 +39,13 @@ export async function submitPDF(file: File): Promise<FileStorage> {
     return newFile;
 }
 
-async function getDocumentDistance(documentId: number, excludeDocuments: number[]): Promise<FileStorage> {
+async function getDocumentDistance(documentId: number, assignId: number, excludeDocuments: number[]): Promise<FileStorage> {
     const config = {
         headers: {
             'Content-Type': 'application/json'
         }
     };
-    const body = JSON.stringify({ documentId, excludeDocuments });
+    const body = JSON.stringify({ documentId, assignId, excludeDocuments });
 
     const response = await axios.post(`${process.env.REACT_APP_API_URL}/analyzer/analyze`, body, config);
     const result: FileStorage = response.data;
@@ -93,14 +94,15 @@ export async function deleteDocument(fileId: number, uid: string) {
     await deleteFile(uid);
 }
 
-export async function analyzeDocument(documentId: number): Promise<DocumentCompare | null> {
+export async function analyzeDocument(documentId: number, assignId: number): Promise<DocumentCompare | null> {
     let excludeDocuments: number[] = [ documentId ];
 
     for (let x = 0; x < 3; x++) {
-        const cosineDistance = await getDocumentDistance(documentId, excludeDocuments);
+        const cosineDistance = await getDocumentDistance(documentId, assignId, excludeDocuments);
+        if (!cosineDistance.file_id) return null;
         const comparison = await getDocumentComparison(documentId, cosineDistance.file_id);
 
-        if (comparison.similarSentences.length > 0) {
+        if (comparison.similarSentences.length > 1) {
             comparison.source = cosineDistance.fileName;
             return comparison;
         } else {

@@ -1,4 +1,4 @@
-import { useState, ChangeEvent, FormEvent } from 'react';
+import { useState, useEffect, ChangeEvent, FormEvent } from 'react';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import Dialog from '@mui/material/Dialog';
@@ -6,9 +6,11 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
+import { Subject } from '../../util/base';
 
 type CreateSubjectProps = {
   open: boolean;
+  subject?: Subject | null;
   handleClose: () => void;
   saveSubject: (title: string, desc: string) => void;
 }
@@ -18,13 +20,17 @@ type FormContent = {
   desc: string;
 }
 
-export default function CreateSubject({ open, handleClose, saveSubject }: CreateSubjectProps) {
+export default function CreateSubject({ open, subject, handleClose, saveSubject }: CreateSubjectProps) {
   const [formData, setFormData] = useState<FormContent>({
     title: '',
     desc: ''
   });
 
   const { title, desc } = formData;
+
+  useEffect(() => {
+    if (subject) setFormData(state => ({ title: subject.subjectTitle, desc: subject.subjectDescription }));
+  }, [subject])
 
   const handleTextChange = (event: ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [event.target.name]: event.target.value });
@@ -42,10 +48,13 @@ export default function CreateSubject({ open, handleClose, saveSubject }: Create
   return (
     <Dialog open={open} onClose={handleClose}>
       <form onSubmit={handleSubmit}>
-        <DialogTitle>Create Subject</DialogTitle>
+        <DialogTitle>{subject ? "Edit Subject" : "Create Subject"}</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            To create a subject, please provide the title and the subject's description.
+            {subject ? 
+              "Editing subject's information won't affect the classrooms. Click save to save changes." : 
+              "To create a subject, please provide the title and the subject's description."
+            }
           </DialogContentText>
           <TextField
             autoFocus

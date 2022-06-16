@@ -1,5 +1,6 @@
 import Grid from "@mui/material/Grid";
 import Card from "@mui/material/Card";
+import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import Divider from "@mui/material/Divider";
@@ -86,7 +87,7 @@ function ClassList({ classrooms, subject }: ClassListProps) {
         <Typography variant="h5" component="div" sx={{ pb: 3, pt: 5, fontSize: 20 }}>
            {`${subject} Classrooms`}
         </Typography>
-        <Grid container spacing={2}>
+        <Grid container spacing={2} sx={{ minHeight: 300 }}>
             {classrooms.map((classroom) => (
                 <Grid key={classroom.classroomId} item xs={12} md={6}>
                     <ClassroomCard  
@@ -97,6 +98,22 @@ function ClassList({ classrooms, subject }: ClassListProps) {
                     />
                 </Grid>
             ))}
+            {classrooms.length === 0 && (
+                <Grid item sm={12}>
+                    <Box sx={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        flexDirection: 'column',
+                        height: { xs: 220, sm: 300 }
+                    }}>
+                        <img alt="productivity" src="/images/covers/productivity.png" style={{ height: "100%" }} />
+                        <Typography variant="h5">
+                            No classroom created yet.
+                        </Typography>
+                    </Box>
+                </Grid>
+            )}
         </Grid>
     </>
   )

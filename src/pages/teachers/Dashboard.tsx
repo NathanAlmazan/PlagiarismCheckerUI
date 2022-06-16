@@ -6,9 +6,9 @@ import PageTitleWrapper from "../../components/PageTitleWrapper";
 import PageHeader from "../../components/PageHeaders/HeaderButton";
 import Container from "@mui/material/Container";
 // Utils
-import { Subject } from "../../util/base";
+import { Subject, AxiosError } from "../../util/base";
 import { getTeacherSubjects } from "../../util/GetRequests";
-import { createNewClassroom, createNewSubject } from "../../util/PostRequests"; 
+import { createNewClassroom, createNewSubject, editSubjectData, deleteSubject } from "../../util/PostRequests"; 
 // Animation 
 import { AnimatePresence, motion } from "framer-motion";
 
@@ -16,7 +16,9 @@ const SubjectList = React.lazy(() => import("../../components/classroom/SubjectL
 const ClassList = React.lazy(() => import("../../components/classroom/ClassList"));
 const CreateSubjectDialog = React.lazy(() => import("../../components/dialogs/CreateSubject"));
 const CreateClassDialog = React.lazy(() => import("../../components/dialogs/CreateClass"));
+const SuccessSnackbar = React.lazy(() => import("../../components/snackbars/SuccessSnackbar"));
 const LoadingOverlay = React.lazy(() => import("../../components/SuspenseLoader/LoadingOverlay"));
+const ErrorDialog = React.lazy(() => import("../../components/dialogs/ErrorDialog"));
 
 function Dashboard() {
   const [subjects, setSubjects] = useState<Subject[]>([]);
@@ -24,6 +26,9 @@ function Dashboard() {
   const [createSub, setCreateSub] = useState<boolean>(false);
   const [createClass, setCreateClass] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
+  const [editSubject, setEditSubject] = useState<Subject | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const classListSection = useRef<HTMLDivElement>(null);
 
   const handleSelectSubject = (subjectId: number) => {
@@ -48,6 +53,7 @@ function Dashboard() {
         setSubjects(data);
         setLoading(false);
         setCreateSub(false);
+        setMessage("Successfully added " + title);
     }).catch(err => console.log(err.message));
   }
 
@@ -57,10 +63,34 @@ function Dashboard() {
         setSubjects(data);
         setLoading(false);
         setCreateClass(false);
+        setMessage("Successfully added " + className);
 
         const classSub = data.find(s => s.subjectId === subjectId)
         if (classSub) setSelected(classSub);
     }).catch(err => console.log(err.message));
+  }
+
+  const handleEditSubject = (title: string, desc: string) => {
+    if (editSubject) {
+        editSubjectData(title, desc, editSubject.subjectId, 6)
+        .then(data => {
+            setSubjects(data);
+            
+            const classSub = data.find(s => s.subjectId === editSubject.subjectId)
+            if (classSub) setSelected(classSub);
+
+            setMessage("Sucessfully updated " + title);
+            setEditSubject(null);
+        })
+        .catch(err => console.log(err.message));
+    }
+  }
+  const handleDeleteSubject = (subjectId: number) => {
+    deleteSubject(subjectId, 6).then(data => {
+        setMessage("Subject was deleted sucessfully.");
+        setSubjects(data);
+        setSelected(data[0]);
+    }).catch(err => setError("Cannot Delete Subject:" + (err as AxiosError).response.data.errors[0]));
   }
 
   return (
@@ -80,6 +110,8 @@ function Dashboard() {
                 subjectList={subjects} 
                 selectSubject={handleSelectSubject} 
                 addSubject={() => setCreateSub(true)}
+                editSubject={(subject) => setEditSubject(subject)}
+                deleteSubject={handleDeleteSubject}
                 selectedSub={selected && selected.subjectId}
             />
 
@@ -105,6 +137,13 @@ function Dashboard() {
             saveSubject={handleAddSuject}
         />
 
+        <CreateSubjectDialog 
+            open={editSubject !== null}
+            subject={editSubject}
+            handleClose={() => setEditSubject(null)}
+            saveSubject={handleEditSubject}
+        />
+
         <CreateClassDialog 
             open={createClass}
             options={subjects.map((subject) => ({ id: subject.subjectId.toString(), label: subject.subjectTitle }))}
@@ -113,6 +152,10 @@ function Dashboard() {
         />
 
         <LoadingOverlay open={loading} />
+
+        <ErrorDialog open={error !== null} message={error as string} handleClose={() => setError(null)}/>
+
+        <SuccessSnackbar open={message !== null} message={message as string} handleClose={() => setMessage(null)} />
     </>
   )
 }

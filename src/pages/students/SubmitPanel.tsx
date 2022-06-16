@@ -13,6 +13,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 
 const UploadFile = React.lazy(() => import("../../components/FileUpload/Upload"));
 const FileAnalyzer = React.lazy(() => import("../../components/FileUpload/FileAnalyzer"));
+const SuccessSnackbar = React.lazy(() => import("../../components/snackbars/SuccessSnackbar"));
 
 type FileInformation = {
   fileId: number, 
@@ -29,6 +30,7 @@ function SubmitPanel() {
   const [originality, setOriginality] = useState<number>(0);
   const [plagiarizedFile, setPlagiarizedFile] = useState<string>();
   const [fileInfo, setFileInfo] = useState<FileInformation>();
+  const [success, setSuccess] = useState<boolean>(false);
 
   useEffect(() => {
     const lines: string[] = textContent.split("\r\n");
@@ -74,8 +76,8 @@ function SubmitPanel() {
     setUploaded(false);
     if (document !== null) {
       try {
-        const uploaded = await submitPDF(document);
-        const cosineDistance = await analyzeDocument(uploaded.file_id);
+        const uploaded = await submitPDF(document, 1);
+        const cosineDistance = await analyzeDocument(uploaded.file_id, 1);
         setFileInfo({ fileId: uploaded.file_id, fileUid: uploaded.fileUid });
         setUploaded(true);
 
@@ -89,6 +91,8 @@ function SubmitPanel() {
           setPlagiarized(true);
         } else {
           setPlagiarized(false);
+          setSuccess(true);
+          setDocument(null);
         }
 
       } catch (e) {
@@ -108,6 +112,9 @@ function SubmitPanel() {
     setUploaded(false);
     if (fileInfo) await saveAssignment(7, 1, fileInfo.fileId);
     setUploaded(true);
+    setPlagiarized(false);
+    setSuccess(true);
+    setDocument(null);
   }
 
   return (
@@ -160,6 +167,11 @@ function SubmitPanel() {
       </Container>
 
       <LoadingOverlay open={!uploaded} />
+      <SuccessSnackbar 
+        open={success} 
+        message="Assignment was successfully uploaded."
+        handleClose={() => setSuccess(false)}
+      />
     </>
   )
 }

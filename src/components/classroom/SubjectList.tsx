@@ -11,10 +11,12 @@ type SubjectProps = {
     subjectList: Subject[],
     selectSubject: (subjectId: number) => void,
     addSubject: () => void,
+    editSubject: (subject: Subject) => void,
+    deleteSubject: (subjectId: number) => void,
     selectedSub?: number
 }
 
-function SubjectList({ subjectList, selectedSub, selectSubject, addSubject }: SubjectProps) {
+function SubjectList({ subjectList, selectedSub, selectSubject, addSubject, editSubject, deleteSubject }: SubjectProps) {
     const [images, setImages] = useState<string[]>([]);
 
     useEffect(() => {
@@ -77,6 +79,8 @@ function SubjectList({ subjectList, selectedSub, selectSubject, addSubject }: Su
                             subtitle={subject.subjectDescription}
                             image={images[i]} 
                             selectSubject={() => selectSubject(subject.subjectId)}
+                            editSubject={() => editSubject(subject)}
+                            deleteSubject={() => deleteSubject(subject.subjectId)}
                             selected={selectedSub === subject.subjectId}
                         />
                     </motion.div>

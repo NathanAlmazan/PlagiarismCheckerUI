@@ -15,10 +15,12 @@ type MediaCardProps = {
     subtitle: string;
     image: string;
     selectSubject: () => void;
+    editSubject: () => void;
+    deleteSubject: () => void;
     selected?: boolean;
 }
 
-function MediaCard({ image, title, subtitle, selected, selectSubject }: MediaCardProps) {
+function MediaCard({ image, title, subtitle, selected, selectSubject, editSubject, deleteSubject }: MediaCardProps) {
   return (
         <Card sx={{ minWidth: 300, maxWidth: 345, display: "inline-block", borderBottom: selected ? "5px solid red" : "none" }}>
             <CardMedia
@@ -51,12 +53,12 @@ function MediaCard({ image, title, subtitle, selected, selectSubject }: MediaCar
                         </Tooltip>
                     </IconButtton>
                 )}
-                <IconButtton sx={{ borderRadius: "50%" }}>
+                <IconButtton onClick={editSubject} sx={{ borderRadius: "50%" }}>
                     <Tooltip title="Edit">
                         <EditOutlinedIcon color="inherit" />
                     </Tooltip>
                 </IconButtton>
-                <IconButtton sx={{ borderRadius: "50%" }}>
+                <IconButtton onClick={deleteSubject} sx={{ borderRadius: "50%" }}>
                     <Tooltip title="Delete">
                         <DeleteOutlineOutlinedIcon color="inherit" />
                     </Tooltip> 

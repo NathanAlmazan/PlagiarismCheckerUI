@@ -27,3 +27,14 @@ export type Assignment = {
     assignDueDate: string,
     assignDueTime: string
 }
+
+export type AxiosError = {
+    response: {
+        config: unknown,
+        data: {
+            errors: string[],
+            status: number,
+            timestamp: string
+        }
+    }
+}
