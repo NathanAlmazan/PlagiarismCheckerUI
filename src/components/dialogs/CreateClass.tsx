@@ -1,4 +1,4 @@
-import { useState, ChangeEvent, FormEvent } from 'react';
+import { useState, useEffect, ChangeEvent, FormEvent } from 'react';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import Dialog from '@mui/material/Dialog';
@@ -8,10 +8,13 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
+import { Classroom } from '../../util/base';
 
 type CreateClassProps = {
   open: boolean;
   options: Options[];
+  classInfo?: Classroom | null;
+  subject?: number;
   handleClose: () => void;
   saveClass: (subjectId: number, className: string) => void;
 }
@@ -26,13 +29,17 @@ type FormContent = {
   className: string;
 }
 
-export default function CreateClass({ open, options, handleClose, saveClass }: CreateClassProps) {
+export default function CreateClass({ open, options, classInfo, subject, handleClose, saveClass }: CreateClassProps) {
   const [formData, setFormData] = useState<FormContent>({
     subjectId: '',
     className: ''
   });
 
   const { subjectId, className } = formData;
+
+  useEffect(() => {
+    if (classInfo && subject) setFormData({ subjectId: subject.toString(), className: classInfo.classroomName });
+  }, [classInfo, subject])
 
   const handleTextChange = (event: ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, className: event.target.value });
@@ -54,10 +61,13 @@ export default function CreateClass({ open, options, handleClose, saveClass }: C
   return (
     <Dialog open={open} onClose={handleClose}>
       <form onSubmit={handleSubmit}>
-        <DialogTitle>Create Classroom</DialogTitle>
+        <DialogTitle>{classInfo ? "Edit Classroom" : "Create Classroom"}</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            To create a classroom, please provide the name and select the its subject.
+            {classInfo ? 
+              "Editinng the classroom information will not affect its content. Click save to save changes." : 
+              "To create a classroom, please provide the name and select the its subject."
+            }
           </DialogContentText>
           <TextField
             autoFocus

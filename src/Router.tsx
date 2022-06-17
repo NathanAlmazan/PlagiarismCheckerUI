@@ -8,7 +8,7 @@ import SuspenseLoader from './components/SuspenseLoader';
 const SubmitPanel = React.lazy(() => import("./pages/students/SubmitPanel"));
 const Login = React.lazy(() => import("./pages/Login"));
 const TDashboard = React.lazy(() => import("./pages/teachers/Dashboard"));
-const TClassroom = React.lazy(() => import("./pages/teachers/Classroom"));
+const ClassroomPage = React.lazy(() => import("./pages/teachers/Classroom"));
 
 function Router() {
   return useRoutes([
@@ -17,7 +17,7 @@ function Router() {
         element: <DashboardLayout />,
         children: [
             { path: 'app', element: <SuspenseLoader children={<TDashboard />} /> },
-            { path: 'class', element: <SuspenseLoader children={<TClassroom />} /> }
+            { path: 'class/:classCode', element: <SuspenseLoader children={<ClassroomPage />} /> }
         ]
     },
     { 
@@ -25,7 +25,6 @@ function Router() {
       element: <DashboardLayout />,
       children: [
           { path: 'app', element: <SuspenseLoader children={<TDashboard />} /> },
-          { path: 'class', element: <SuspenseLoader children={<TClassroom />} /> },
           { path: 'submit', element: <SuspenseLoader children={<SubmitPanel />} /> }
       ]
     },

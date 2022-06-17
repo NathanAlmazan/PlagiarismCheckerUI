@@ -11,7 +11,7 @@ export type Classroom = {
     classroomName: string,
     dateCreated: string,
     enrolledStudents: Student[],
-    assignments: Assignment[]
+    assignments: ClassAssignment[]
 }
 
 export type Student = {
@@ -25,7 +25,17 @@ export type Assignment = {
     assignDesc: string,
     assignPoints: number,
     assignDueDate: string,
-    assignDueTime: string
+    assignDueTime: string,
+}
+
+export type ClassAssignment = {
+    assignmentId: number,
+    assignTitle: string,
+    assignDesc: string,
+    assignPoints: number,
+    assignDueDate: string,
+    assignDueTime: string,
+    submittedFiles: FileStorage[]
 }
 
 export type AxiosError = {
@@ -37,4 +47,24 @@ export type AxiosError = {
             timestamp: string
         }
     }
+}
+
+export type FileStorage = {
+    file_id: number,
+    fileName: string,
+    fileUid: string,
+    originalFileLink: string,
+    originalityScore: number,
+    dateUploaded: string,
+    assignmentList: {
+        student: {
+            studentId: number, 
+            level: string,
+            studentAccount: {
+                firstName: string,
+                lastName: string,
+                email: string
+            }
+        }
+    } | null
 }

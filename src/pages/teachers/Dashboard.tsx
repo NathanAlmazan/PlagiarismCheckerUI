@@ -6,9 +6,9 @@ import PageTitleWrapper from "../../components/PageTitleWrapper";
 import PageHeader from "../../components/PageHeaders/HeaderButton";
 import Container from "@mui/material/Container";
 // Utils
-import { Subject, AxiosError } from "../../util/base";
+import { Subject, AxiosError, Classroom } from "../../util/base";
 import { getTeacherSubjects } from "../../util/GetRequests";
-import { createNewClassroom, createNewSubject, editSubjectData, deleteSubject } from "../../util/PostRequests"; 
+import { createNewClassroom, createNewSubject, editSubjectData, deleteSubject, deleteClassroom, editClassroomData } from "../../util/PostRequests"; 
 // Animation 
 import { AnimatePresence, motion } from "framer-motion";
 
@@ -27,6 +27,7 @@ function Dashboard() {
   const [createClass, setCreateClass] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [editSubject, setEditSubject] = useState<Subject | null>(null);
+  const [editRoom, setEditRoom] = useState<Classroom | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const classListSection = useRef<HTMLDivElement>(null);
@@ -85,12 +86,52 @@ function Dashboard() {
         .catch(err => console.log(err.message));
     }
   }
+
   const handleDeleteSubject = (subjectId: number) => {
     deleteSubject(subjectId, 6).then(data => {
-        setMessage("Subject was deleted sucessfully.");
         setSubjects(data);
         setSelected(data[0]);
+        setMessage("Subject was deleted sucessfully.");
     }).catch(err => setError("Cannot Delete Subject:" + (err as AxiosError).response.data.errors[0]));
+  }
+
+  const handleEditClassroom = (subjectId: number, className: string) => {
+    if (editRoom) {
+        editClassroomData(editRoom.classroomId, className, subjectId, 6).then(data => {
+            setSubjects(data);
+            
+            const classSub = data.find(s => s.subjectId === subjectId)
+            if (classSub) setSelected(classSub);
+
+            setMessage("Sucessfully updated " + className);
+            setEditRoom(null);
+        }).catch(err => console.log(err.message));
+    }
+  } 
+
+  const handleDeleteClassroom = (classId: number) => {
+    deleteClassroom(classId, 6).then(data => {
+        setSubjects(data);
+
+        if (selected) {
+            const classSub = data.find(s => s.subjectId === selected?.subjectId);
+            if (classSub) setSelected(classSub);
+        } else setSelected(data[0]);
+
+        setMessage("Classroom was deleted sucessfully.");
+
+    }).catch(err => {
+        getTeacherSubjects(6).then(data => {
+            setSubjects(data);
+
+            if (selected) {
+                const classSub = data.find(s => s.subjectId === selected?.subjectId);
+                if (classSub) setSelected(classSub);
+            } else setSelected(data[0]);
+
+            setMessage("Classroom was deleted sucessfully.");
+        })
+    });
   }
 
   return (
@@ -125,7 +166,12 @@ function Dashboard() {
                         exit={{ opacity: 0, y: 80 }}
                         transition={{ duration: 0.5 }}
                     >
-                        <ClassList classrooms={selected.classrooms} subject={selected.subjectTitle} />
+                        <ClassList 
+                            classrooms={selected.classrooms} 
+                            subject={selected.subjectTitle}
+                            editClassroom={(room) => setEditRoom(room)}
+                            delteClassroom={handleDeleteClassroom}
+                        />
                     </motion.div>
                 )}
             </AnimatePresence>
@@ -147,8 +193,17 @@ function Dashboard() {
         <CreateClassDialog 
             open={createClass}
             options={subjects.map((subject) => ({ id: subject.subjectId.toString(), label: subject.subjectTitle }))}
-            handleClose={() => setCreateSub(false)}
+            handleClose={() => setCreateClass(false)}
             saveClass={handleAddClass}
+        />
+
+        <CreateClassDialog 
+            open={editRoom !== null}
+            classInfo={editRoom}
+            subject={selected && selected.subjectId}
+            options={subjects.map((subject) => ({ id: subject.subjectId.toString(), label: subject.subjectTitle }))}
+            handleClose={() => setEditRoom(null)}
+            saveClass={handleEditClassroom}
         />
 
         <LoadingOverlay open={loading} />

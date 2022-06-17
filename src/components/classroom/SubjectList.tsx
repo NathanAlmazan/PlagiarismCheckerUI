@@ -68,7 +68,7 @@ function SubjectList({ subjectList, selectedSub, selectSubject, addSubject, edit
                 
                 {subjectList.map((subject, i) => (
                     <motion.div
-                        key={i}
+                        key={subject.subjectId}
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}

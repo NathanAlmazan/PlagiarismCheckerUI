@@ -1,6 +1,6 @@
 import axios from 'axios';
 import deleteFile from "./FirebaseServices/storage";
-import { Subject } from "./base";
+import { Classroom, Subject } from "./base";
 
 export type DocumentCompare = {
     cosineDistance: number,
@@ -97,7 +97,7 @@ export async function deleteDocument(fileId: number, uid: string) {
 export async function analyzeDocument(documentId: number, assignId: number): Promise<DocumentCompare | null> {
     let excludeDocuments: number[] = [ documentId ];
 
-    for (let x = 0; x < 3; x++) {
+    for (let x = 0; x < 2; x++) {
         const cosineDistance = await getDocumentDistance(documentId, assignId, excludeDocuments);
         if (!cosineDistance.file_id) return null;
         const comparison = await getDocumentComparison(documentId, cosineDistance.file_id);
@@ -132,4 +132,15 @@ export async function getTeacherSubjects(teacherId: number): Promise<Subject[]> 
     
     const response = await axios.get(`${process.env.REACT_APP_API_URL}/class/subject/find/${teacherId}`, config);
     return response.data as Subject[];
+}
+
+export async function getClassroomData(classCode: string) {
+    const config = {
+        headers: {
+            'Accept': 'application/json'
+        }
+    };
+    
+    const response = await axios.get(`${process.env.REACT_APP_API_URL}/class/room/data/${classCode}`, config);
+    return response.data as Classroom;
 }

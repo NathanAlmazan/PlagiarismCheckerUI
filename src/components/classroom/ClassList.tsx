@@ -1,3 +1,4 @@
+import { useState } from "react";
 import Grid from "@mui/material/Grid";
 import Card from "@mui/material/Card";
 import Box from "@mui/material/Box";
@@ -10,9 +11,11 @@ import Tooltip from "@mui/material/Tooltip";
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import ArrowForwardIosOutlinedIcon from '@mui/icons-material/ArrowForwardIosOutlined';
+import DeleteDialog from "../dialogs/DeletePromptDialog";
 // Animation
 import { motion } from "framer-motion";
 // Utils
+import { useNavigate } from "react-router-dom";
 import { Classroom } from "../../util/base";
 
 type ClassroomProps = {
@@ -20,14 +23,21 @@ type ClassroomProps = {
     classCode: string;
     totalStudents: number;
     totalAssign: number;
+    editClassroom: () => void;
+    deleteClassroom: () => void;
 }
 
-function ClassroomCard({ className, classCode, totalStudents, totalAssign }: ClassroomProps) {
+function ClassroomCard({ className, classCode, totalStudents, totalAssign, editClassroom, deleteClassroom }: ClassroomProps) {
+    const navigate = useNavigate();
+    const [open, setOpen] = useState<boolean>(false);
+
+    const handleDelete = () => setOpen(!open);
+    
     return (
         <Card>
             <Stack direction="row" justifyContent="space-between">
                 <Grid container spacing={2} sx={{ p: 3 }}>
-                    <Grid item sm={12}>
+                    <Grid item xs={12} sm={12}>
                         <Stack direction={{ xs: "column", sm: "row" }} justifyContent="space-between">
                             <Typography variant="h4" color="primary.main" fontWeight="bold" gutterBottom>
                                 {className}
@@ -40,7 +50,7 @@ function ClassroomCard({ className, classCode, totalStudents, totalAssign }: Cla
                         <Divider />
                         
                     </Grid>
-                    <Grid item sm={6}>
+                    <Grid item xs={6} sm={6}>
                         <Typography variant="body1">
                             {`${totalStudents} Students Enrolled`}
                         </Typography>
@@ -48,13 +58,13 @@ function ClassroomCard({ className, classCode, totalStudents, totalAssign }: Cla
                             {`${totalAssign} Active Assignments`}
                         </Typography>
                     </Grid>
-                    <Grid item sm={6} sx={{ textAlign: "right" }}>
-                        <IconButton sx={{ borderRadius: "50%" }}>
+                    <Grid item xs={6} sm={6} sx={{ textAlign: "right" }}>
+                        <IconButton onClick={editClassroom} sx={{ borderRadius: "50%" }}>
                             <Tooltip title="Edit">
                                 <EditOutlinedIcon color="inherit" />
                             </Tooltip>
                         </IconButton>
-                        <IconButton sx={{ borderRadius: "50%" }}>
+                        <IconButton onClick={handleDelete} sx={{ borderRadius: "50%" }}>
                             <Tooltip title="Delete">
                                 <DeleteOutlineOutlinedIcon color="inherit" />
                             </Tooltip> 
@@ -68,20 +78,31 @@ function ClassroomCard({ className, classCode, totalStudents, totalAssign }: Cla
                             transition: { duration: 1 }
                         }}
                     >
-                        <ArrowForwardIosOutlinedIcon sx={{ width: 40, height: 40 }} />
+                        <IconButton onClick={() => navigate(`/teacher/class/${classCode}`)}>
+                            <ArrowForwardIosOutlinedIcon sx={{ width: 40, height: 40 }} />
+                        </IconButton>
                     </motion.div>
                 </Stack>
             </Stack>
+            <DeleteDialog 
+                open={open}  
+                handleClose={handleDelete}
+                entity={className}
+                effect="enrolled students and class assignments"
+                deleteAction={deleteClassroom}
+            />
         </Card>
     )
 }
 
 type ClassListProps = {
     classrooms: Classroom[],
-    subject: string
+    subject: string,
+    editClassroom: (room: Classroom) => void,
+    delteClassroom: (roomId: number) => void
 }
 
-function ClassList({ classrooms, subject }: ClassListProps) {
+function ClassList({ classrooms, subject, editClassroom, delteClassroom }: ClassListProps) {
   return (
     <>
         <Typography variant="h5" component="div" sx={{ pb: 3, pt: 5, fontSize: 20 }}>
@@ -95,6 +116,8 @@ function ClassList({ classrooms, subject }: ClassListProps) {
                         className={classroom.classroomName}
                         totalStudents={classroom.enrolledStudents.length}
                         totalAssign={classroom.assignments.length}
+                        editClassroom={() => editClassroom(classroom)}
+                        deleteClassroom={() => delteClassroom(classroom.classroomId)}
                     />
                 </Grid>
             ))}
