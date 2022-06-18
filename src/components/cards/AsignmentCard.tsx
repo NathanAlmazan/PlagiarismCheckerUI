@@ -1,3 +1,4 @@
+import { useState } from "react";
 import Card from "@mui/material/Card";
 import Stack from "@mui/material/Stack";
 import { useTheme } from "@mui/material";
@@ -6,6 +7,7 @@ import Typography from "@mui/material/Typography";
 import CardActions from "@mui/material/CardActions";
 import IconButtton from "@mui/material/IconButton";
 import Tooltip from "@mui/material/Tooltip";
+import DeleteDialog from "../dialogs/DeletePromptDialog";
 // Icons
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
@@ -22,10 +24,13 @@ type AssignmentCardProps = {
 }
 
 function AsignmentCard({ assignment, selected, color, selectSubject, editSubject, deleteSubject }: AssignmentCardProps) {
-    const theme = useTheme();
+  const theme = useTheme();
+  const [open, setOpen] = useState<boolean>(false);
+
+  const handleDelete = () => setOpen(!open);
   return (
-    <Card sx={{ minWidth: 300, maxWidth: 345, height: 250,  display: "inline-block", borderTop: `8px solid ${color}` }}>
-        <CardContent>
+    <Card sx={{ minWidth: 300, maxWidth: 345, height: "100%",  display: "inline-block", position: "relative", borderTop: `8px solid ${color}` }}>
+        <CardContent sx={{ mb: 3 }}>
             <Typography gutterBottom variant="h5" component="div" color={selected ? "primary.main" : "inherit"} sx={{ fontSize: 18, borderBottom: `1px solid ${theme.colors.primary.main}`, pb: 1 }}>
                 {assignment.assignTitle}
             </Typography>
@@ -58,7 +63,9 @@ function AsignmentCard({ assignment, selected, color, selectSubject, editSubject
                 display: "flex",
                 width: "100%",
                 justifyContent: "flex-end",
-                alignItems: "center"
+                alignItems: "center",
+                position: "absolute",
+                bottom: 0
             }}
         >
             {!selected && (
@@ -73,12 +80,19 @@ function AsignmentCard({ assignment, selected, color, selectSubject, editSubject
                     <EditOutlinedIcon color="inherit" />
                 </Tooltip>
             </IconButtton>
-            <IconButtton onClick={deleteSubject} sx={{ borderRadius: "50%" }}>
+            <IconButtton onClick={handleDelete} sx={{ borderRadius: "50%" }}>
                 <Tooltip title="Delete">
                     <DeleteOutlineOutlinedIcon color="inherit" />
                 </Tooltip> 
             </IconButtton>
         </CardActions>
+        <DeleteDialog 
+                open={open}  
+                handleClose={handleDelete}
+                entity={assignment.assignTitle}
+                effect="submitted files"
+                deleteAction={deleteSubject}
+            />
     </Card>
   )
 }

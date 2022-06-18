@@ -6,10 +6,12 @@ import PageTitleWrapper from "../../components/PageTitleWrapper";
 import PageHeader from "../../components/PageHeaders/Header";
 import Container from "@mui/material/Container";
 // Utils
+import { useParams, useNavigate } from 'react-router-dom';
 import { noCase } from 'change-case';
-import { analyzeDocument, getFilePlainContent, submitPDF, deleteDocument, saveAssignment } from '../../util/GetRequests';
+import { analyzeDocument, getFilePlainContent, submitPDF, deleteDocument, getAssignmentDate } from '../../util/GetRequests';
 // Animation
 import { AnimatePresence, motion } from 'framer-motion';
+import { Assignment } from '../../util/base';
 
 const UploadFile = React.lazy(() => import("../../components/FileUpload/Upload"));
 const FileAnalyzer = React.lazy(() => import("../../components/FileUpload/FileAnalyzer"));
@@ -21,6 +23,9 @@ type FileInformation = {
 }
 
 function SubmitPanel() {
+  const navigate = useNavigate();
+  const { classCode, assignId } = useParams();
+  const [assignmentData, setAssignmentData] = useState<Assignment>();
   const [paragraphs, setParagraphs] = useState<string[]>([]);
   const [sources, setSources] = useState<string[]>([]);
   const [textContent, setTextContent] = useState<string>("");
@@ -31,6 +36,15 @@ function SubmitPanel() {
   const [plagiarizedFile, setPlagiarizedFile] = useState<string>();
   const [fileInfo, setFileInfo] = useState<FileInformation>();
   const [success, setSuccess] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (classCode && assignId) {
+      getAssignmentDate(classCode, parseInt(assignId)).then((data) => {
+        setAssignmentData(data);
+      }).catch(err => console.log(err));
+    }
+
+  }, [classCode, assignId])
 
   useEffect(() => {
     const lines: string[] = textContent.split("\r\n");
@@ -74,10 +88,10 @@ function SubmitPanel() {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setUploaded(false);
-    if (document !== null) {
+    if (document !== null && assignId !== undefined) {
       try {
-        const uploaded = await submitPDF(document, 1);
-        const cosineDistance = await analyzeDocument(uploaded.file_id, 1);
+        const uploaded = await submitPDF(document, parseInt(assignId));
+        const cosineDistance = await analyzeDocument(uploaded.file_id, parseInt(assignId));
         setFileInfo({ fileId: uploaded.file_id, fileUid: uploaded.fileUid });
         setUploaded(true);
 
@@ -86,13 +100,14 @@ function SubmitPanel() {
 
           setSources(cosineDistance.similarSentences);
           setTextContent(textContent.message);
-          setPlagiarizedFile(cosineDistance.source);
+          setPlagiarizedFile(cosineDistance.source?.fileName);
           setOriginality(100 - (cosineDistance.cosineDistance * 100));
           setPlagiarized(true);
         } else {
           setPlagiarized(false);
           setSuccess(true);
           setDocument(null);
+          navigate(-1);
         }
 
       } catch (e) {
@@ -110,11 +125,11 @@ function SubmitPanel() {
 
   const saveFile = async () => {
     setUploaded(false);
-    if (fileInfo) await saveAssignment(7, 1, fileInfo.fileId);
+    //if (fileInfo && assignId) await saveAssignment(69, parseInt(assignId), fileInfo.fileId);
     setUploaded(true);
-    setPlagiarized(false);
     setSuccess(true);
     setDocument(null);
+    navigate(-1);
   }
 
   return (
@@ -122,7 +137,7 @@ function SubmitPanel() {
       <Helmet><title>Upload File</title></Helmet>
       <PageTitleWrapper>
         <PageHeader 
-          title='Assignment Title'
+          title={assignmentData ? assignmentData.assignTitle : 'Assignment Title'}
           subtitle="This panel will analyze your assignment's originality."
         />
       </PageTitleWrapper>
@@ -160,6 +175,7 @@ function SubmitPanel() {
                 fileName={document ? document.name : null} 
                 submitFile={handleFileChange}
                 submitForm={handleSubmit} 
+                assignment={assignmentData}
               />
             </motion.div>
           )}

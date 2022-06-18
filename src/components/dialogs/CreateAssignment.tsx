@@ -33,7 +33,11 @@ function CreateAssignment({ open, assignment, handleClose, saveAssignment }: Cre
   const { assignTitle, assignDesc, assignPoints } = formData;
 
   useEffect(() => {
-    if (assignment) setFormData(state => assignment);
+    if (assignment) {
+      setFormData(state => assignment);
+      setSubmission(new Date(assignment.assignDueDate + "T" + assignment.assignDueTime))
+    }
+
   }, [assignment])
 
   const handleTextChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -42,6 +46,7 @@ function CreateAssignment({ open, assignment, handleClose, saveAssignment }: Cre
 
   const handleDateChange = (newValue: Date | null) => setSubmission(newValue);
 
+
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!submission) return;
@@ -49,7 +54,7 @@ function CreateAssignment({ open, assignment, handleClose, saveAssignment }: Cre
         assignTitle: assignTitle,
         assignDesc: assignDesc,
         assignDueDate: submission.toISOString().split("T")[0], 
-        assignDueTime: submission.toISOString().split("T")[1].split(".")[0],
+        assignDueTime: submission.toString().split(" ")[4],
         assignmentId: 0, 
         assignPoints: assignPoints
     });

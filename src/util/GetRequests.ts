@@ -1,25 +1,27 @@
 import axios from 'axios';
 import deleteFile from "./FirebaseServices/storage";
-import { Classroom, Subject } from "./base";
+import { Assignment, Classroom, FileStorage, Subject } from "./base";
 
 export type DocumentCompare = {
     cosineDistance: number,
     similarSentences: string[],
-    source?: string
+    source?: FileStorage
 };
-
-export type FileStorage = {
-    file_id: number,
-    fileName: string,
-    fileUid: string,
-    originalFileLink: string,
-    renderedFileLink: string,
-    originalityScore: number
-}
 
 type PlainResponse = {
     status: number,
     message: string
+}
+
+export async function getAssignmentDate(classCode: string, assignId: number) {
+    const config = {
+        headers: {
+            'Accept': 'application/json'
+        }
+    };
+
+    const response = await axios.get(`${process.env.REACT_APP_API_URL}/class/assignment/${classCode}/${assignId}`, config);
+    return response.data as Assignment;
 }
 
 export async function submitPDF(file: File, assignId: number): Promise<FileStorage> {
@@ -53,7 +55,7 @@ async function getDocumentDistance(documentId: number, assignId: number, exclude
     return result;
 }
 
-async function getDocumentComparison(documentA: number, documentB: number): Promise<DocumentCompare> {
+export async function getDocumentComparison(documentA: number, documentB: number): Promise<DocumentCompare> {
     const config = {
         headers: {
             'Content-Type': 'application/json'
@@ -102,8 +104,8 @@ export async function analyzeDocument(documentId: number, assignId: number): Pro
         if (!cosineDistance.file_id) return null;
         const comparison = await getDocumentComparison(documentId, cosineDistance.file_id);
 
-        if (comparison.similarSentences.length > 1) {
-            comparison.source = cosineDistance.fileName;
+        if (comparison.similarSentences.length > 1 && comparison.cosineDistance > 0.49) {
+            comparison.source = cosineDistance;
             return comparison;
         } else {
             excludeDocuments.push(cosineDistance.file_id);
@@ -143,4 +145,26 @@ export async function getClassroomData(classCode: string) {
     
     const response = await axios.get(`${process.env.REACT_APP_API_URL}/class/room/data/${classCode}`, config);
     return response.data as Classroom;
+}
+
+export async function getFileStorageData(fileUid: string) {
+    const config = {
+        headers: {
+            'Accept': 'application/json'
+        }
+    };
+    
+    const response = await axios.get(`${process.env.REACT_APP_API_URL}/analyzer/file/storage/${fileUid}`, config);
+    return response.data as FileStorage;
+}
+
+export async function getFileContentFromURL(fileUid: string) {
+    const config = {
+        headers: {
+            'Accept': 'application/json'
+        }
+    };
+    
+    const response = await axios.get(`${process.env.REACT_APP_API_URL}/analyzer/file/content/${fileUid}`, config);
+    return response.data as PlainResponse;
 }

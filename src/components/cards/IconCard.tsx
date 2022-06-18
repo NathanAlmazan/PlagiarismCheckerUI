@@ -25,6 +25,7 @@ function IconCard({ title, addSubject }: IconCardProps) {
             sx={{
                 py: 5,
                 boxShadow: 0,
+                height: "100%",
                 textAlign: 'center',
                 color: (theme) => theme.palette.primary.dark,
                 bgcolor: "#FFFF",

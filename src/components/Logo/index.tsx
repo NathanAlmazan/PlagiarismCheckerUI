@@ -89,16 +89,9 @@ const VersionBadge = styled(Box)(
 `
 );
 
-const LogoText = styled(Box)(
-  ({ theme }) => `
-        font-size: ${theme.typography.pxToRem(15)};
-        font-weight: ${theme.typography.fontWeightBold};
-`
-);
-
 function Logo() {
   return (
-    <LogoWrapper to="/overview">
+    <LogoWrapper to="/">
       <LogoSignWrapper>
         <LogoSign>
           <LogoSignInner />
@@ -114,7 +107,6 @@ function Logo() {
           <Tooltip title="Version 2.0" arrow placement="right">
             <VersionBadge>3.1</VersionBadge>
           </Tooltip>
-          <LogoText>Tokyo Free White</LogoText>
         </LogoTextWrapper>
       </Box>
     </LogoWrapper>

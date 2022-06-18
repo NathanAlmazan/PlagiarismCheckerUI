@@ -22,7 +22,7 @@ type MediaCardProps = {
 
 function MediaCard({ image, title, subtitle, selected, selectSubject, editSubject, deleteSubject }: MediaCardProps) {
   return (
-        <Card sx={{ minWidth: 300, maxWidth: 345, display: "inline-block", borderBottom: selected ? "5px solid red" : "none" }}>
+        <Card sx={{ minWidth: 300, maxWidth: 345, height: "100%", display: "inline-block", position: "relative", borderBottom: selected ? "5px solid red" : "none" }}>
             <CardMedia
                 component="img"
                 sx={{ height: 140 }}
@@ -43,7 +43,9 @@ function MediaCard({ image, title, subtitle, selected, selectSubject, editSubjec
                     display: "flex",
                     width: "100%",
                     justifyContent: "flex-end",
-                    alignItems: "center"
+                    alignItems: "center",
+                    position: "absolute",
+                    bottom: 0, 
                 }}
             >
                 {!selected && (

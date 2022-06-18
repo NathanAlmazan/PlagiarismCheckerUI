@@ -56,6 +56,7 @@ export type FileStorage = {
     originalFileLink: string,
     originalityScore: number,
     dateUploaded: string,
+    parent: FileStorage | null,
     assignmentList: {
         student: {
             studentId: number, 

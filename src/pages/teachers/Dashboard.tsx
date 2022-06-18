@@ -41,7 +41,7 @@ function Dashboard() {
   }
 
   useEffect(() => {
-    getTeacherSubjects(6).then(data => {
+    getTeacherSubjects(1).then(data => {
         setSubjects(state => data);
         setSelected(state => data[0]);
     })
@@ -50,7 +50,7 @@ function Dashboard() {
 
   const handleAddSuject = (title: string, desc: string) => {
     setLoading(true);
-    createNewSubject(title, desc, 6).then(data => {
+    createNewSubject(title, desc, 1).then(data => {
         setSubjects(data);
         setLoading(false);
         setCreateSub(false);
@@ -60,7 +60,7 @@ function Dashboard() {
 
   const handleAddClass = (subjectId: number, className: string) => {
     setLoading(true);
-    createNewClassroom(subjectId, className, 6).then(data => {
+    createNewClassroom(subjectId, className, 1).then(data => {
         setSubjects(data);
         setLoading(false);
         setCreateClass(false);
@@ -73,7 +73,7 @@ function Dashboard() {
 
   const handleEditSubject = (title: string, desc: string) => {
     if (editSubject) {
-        editSubjectData(title, desc, editSubject.subjectId, 6)
+        editSubjectData(title, desc, editSubject.subjectId, 1)
         .then(data => {
             setSubjects(data);
             
@@ -88,7 +88,7 @@ function Dashboard() {
   }
 
   const handleDeleteSubject = (subjectId: number) => {
-    deleteSubject(subjectId, 6).then(data => {
+    deleteSubject(subjectId, 1).then(data => {
         setSubjects(data);
         setSelected(data[0]);
         setMessage("Subject was deleted sucessfully.");
@@ -97,7 +97,7 @@ function Dashboard() {
 
   const handleEditClassroom = (subjectId: number, className: string) => {
     if (editRoom) {
-        editClassroomData(editRoom.classroomId, className, subjectId, 6).then(data => {
+        editClassroomData(editRoom.classroomId, className, subjectId, 1).then(data => {
             setSubjects(data);
             
             const classSub = data.find(s => s.subjectId === subjectId)
@@ -110,7 +110,7 @@ function Dashboard() {
   } 
 
   const handleDeleteClassroom = (classId: number) => {
-    deleteClassroom(classId, 6).then(data => {
+    deleteClassroom(classId, 1).then(data => {
         setSubjects(data);
 
         if (selected) {
@@ -121,7 +121,7 @@ function Dashboard() {
         setMessage("Classroom was deleted sucessfully.");
 
     }).catch(err => {
-        getTeacherSubjects(6).then(data => {
+        getTeacherSubjects(1).then(data => {
             setSubjects(data);
 
             if (selected) {

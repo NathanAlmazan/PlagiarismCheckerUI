@@ -14,16 +14,18 @@ import ArticleOutlinedIcon from '@mui/icons-material/ArticleOutlined';
 // Animation
 import { AnimatePresence, motion } from "framer-motion";
 import React from "react";
+import { Assignment } from "../../util/base";
 
 type UploadProps = {
     fileName: string | null,
     submitFile: (file: File) => void;
     submitForm: (event: React.FormEvent<HTMLFormElement>) => void;
+    assignment?: Assignment;
 }
 
 function Upload(props: UploadProps) {
     const theme = useTheme();
-    const { fileName, submitFile, submitForm } = props;
+    const { fileName, assignment, submitFile, submitForm } = props;
     const handleDropFile = (<T extends File>(acceptedFiles: T[], fileRejections: FileRejection[], event: DropEvent) => {
         submitFile(acceptedFiles[0]);
     }); 
@@ -98,15 +100,24 @@ function Upload(props: UploadProps) {
                 <Stack component="form" onSubmit={submitForm} direction="column" justifyContent="flex-start" spacing={2}>
                     <Stack direction="row" justifyContent="space-between" sx={{ borderBottom: `1px solid ${theme.colors.primary.main}`, pb: 1 }}>
                         <Typography variant="body2" align="right" sx={{ fontWeight: 'bold' }}>
-                            70 points
+                            {`${assignment && assignment.assignPoints} points`}
                         </Typography>
+                       <Stack direction="column">
                         <Typography variant="body2" align="right" sx={{ fontWeight: 'bold' }}>
-                            Due July 1, 2022
-                        </Typography>
+                                {assignment && "Due " + new Date(assignment?.assignDueDate).toLocaleDateString(undefined, {
+                                    weekday: 'short',
+                                    month: 'long',
+                                    day: 'numeric',
+                                    year: 'numeric'
+                                })}
+                            </Typography>
+                            <Typography variant="body2" align="right" color="text.secondary">
+                                {assignment && new Date(assignment?.assignDueDate + "T" + assignment?.assignDueTime).toLocaleTimeString('en-US')}
+                            </Typography>
+                       </Stack>
                     </Stack>
                     <Typography variant="body1" align="justify">
-                        {"Et et enim sunt in elit anim labore ipsum et ea veniam in ut. Veniam pariatur veniam consequat duis do fugiat sint qui enim dolore. Sunt nulla Lorem elit voluptate esse esse. " +
-                        "Ea non reprehenderit et officia. Mollit cupidatat id anim consectetur ea deserunt consequat aliquip. Aliquip aute labore pariatur in ullamco consequat ex quis excepteur labore labore laborum."}
+                        {assignment && assignment.assignDesc}
                     </Typography>
                     <TextField 
                         type="text"

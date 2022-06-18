@@ -8,7 +8,7 @@ import PageHeader from "../../components/PageHeaders/HeaderButton";
 // Utils
 import { Assignment, ClassAssignment, Classroom } from "../../util/base";
 import { getClassroomData } from "../../util/GetRequests";
-import { createNewAssignment } from "../../util/PostRequests";
+import { createNewAssignment, deleteAssignmentData, editAssignmentData } from "../../util/PostRequests";
 
 const LoadingOverlay = React.lazy(() => import("../../components/SuspenseLoader/LoadingOverlay"));
 const AssignmentList = React.lazy(() => import("../../components/classroom/AssignmentList"));
@@ -20,6 +20,7 @@ function ClassroomPage() {
   const { classCode } = useParams();
   const [classDetails, setClassDetails] = useState<Classroom>();
   const [seletced, setSelected] = useState<ClassAssignment>();
+  const [editAssignment, setEditAssignment] = useState<ClassAssignment>();
   const [createAssign, setCreateAssign] = useState<boolean>(false);
   const [message, setMessage] = useState<string | null>(null);
   const studentListSection = useRef<HTMLDivElement>(null);
@@ -41,18 +42,39 @@ function ClassroomPage() {
     });
   }
 
-  const handleEditAssign = (assign: Assignment) => console.log(assign);
-  const handleDeleteAssign = (assignId: number) => console.log(assignId);
+  const handleEditAssign = (assign: ClassAssignment) => setEditAssignment(assign);
+  const handleDeleteAssign = (assignId: number) => {
+    if (classCode) {
+      deleteAssignmentData(assignId, classCode).then(data => {
+        setClassDetails(data);
+        setMessage("Successfully deleted assignment");
+      }).catch(err => console.log(err));
+    }
+  }
 
   const handleCreateAssignment = (assignment: Assignment) => {
     if (classDetails) {
       createNewAssignment(assignment, classDetails.classroomId, classDetails.classroomCode).then(data => {
         setCreateAssign(false);
         setClassDetails(data);
+        setSelected(data.assignments.find(a => a.assignTitle === assignment.assignTitle));
         setMessage("Successfully added " + assignment.assignTitle);
       }).catch(err => console.log(err));
     }
   }
+
+  const saveAssignmentChanges = (assignment: Assignment) => {
+    if (classDetails && editAssignment) {
+      assignment.assignmentId = editAssignment.assignmentId;
+
+      editAssignmentData(assignment, classDetails.classroomId, classDetails.classroomCode).then(data => {
+        setEditAssignment(undefined);
+        setClassDetails(data);
+        setSelected(data.assignments.find(a => a.assignTitle === assignment.assignTitle));
+        setMessage("Successfully updated " + assignment.assignTitle);
+      }).catch(err => console.log(err));
+    }
+  } 
 
   return (
     <>
@@ -80,6 +102,8 @@ function ClassroomPage() {
               <FileStorageList 
                 assignmentTitle={seletced ? seletced.assignTitle : classDetails.assignments[0].assignTitle} 
                 submittedFiles={seletced ? seletced.submittedFiles : classDetails.assignments[0].submittedFiles} 
+                classCode={classDetails.classroomCode}
+                assignId={seletced ? seletced.assignmentId : classDetails.assignments[0].assignmentId}
               />
             )}
            </>
@@ -92,6 +116,13 @@ function ClassroomPage() {
         open={createAssign}
         handleClose={() => setCreateAssign(false)}
         saveAssignment={handleCreateAssignment}
+      />
+
+      <CreateAssignmentDialog 
+        open={editAssignment !== undefined}
+        assignment={editAssignment}
+        handleClose={() => setEditAssignment(undefined)}
+        saveAssignment={saveAssignmentChanges}
       />
 
       <SuccessSnackbar 

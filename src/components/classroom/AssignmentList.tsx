@@ -1,5 +1,5 @@
 import { useEffect, useState } from  "react";
-import { Assignment, ClassAssignment } from '../../util/base';
+import { ClassAssignment } from '../../util/base';
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Stack from "@mui/material/Stack";
@@ -11,7 +11,7 @@ type AssignmentListProps = {
     assignments: ClassAssignment[];
     selected?: number;
     selectAssign: (assign: ClassAssignment) => void;
-    editAssign: (assign: Assignment) => void;
+    editAssign: (assign: ClassAssignment) => void;
     deleteAssign: (assignId: number) => void;
 }
 

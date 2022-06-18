@@ -3,6 +3,7 @@ import {
     Tooltip,
     Divider,
     Box,
+    Stack,
     FormControl,
     InputLabel,
     Card,
@@ -17,10 +18,11 @@ import {
     TableContainer,
     MenuItem,
     Typography,
-    CardHeader
+    CardHeader,
+    Button
   } from '@mui/material';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
-
+import { useNavigate } from "react-router-dom";
 import Label from '../../Label';
 import InsertPageBreakTwoToneIcon from '@mui/icons-material/InsertPageBreakTwoTone';
 import DownloadTwoToneIcon from '@mui/icons-material/DownloadTwoTone';
@@ -53,8 +55,8 @@ import { FileStorage } from "../../../util/base";
     let stats = "passed";
 
     if (score === 0) stats = "unchecked";
-    else if (score < 70 && score > 40) stats = "marginal";
-    else if (score < 40 ) stats = "plagiarized";
+    else if (score < 60 && score > 30) stats = "marginal";
+    else if (score < 30 ) stats = "plagiarized";
 
     const status = map.find(s => s.text === stats);
   
@@ -96,10 +98,13 @@ import { FileStorage } from "../../../util/base";
 
   type FileStorageProps = {
     assignmentTitle: string;
+    classCode: string;
+    assignId: number;
     submittedFiles: FileStorage[];
   }
 
-  function FileStorageTable({ assignmentTitle, submittedFiles }: FileStorageProps) {
+  function FileStorageTable({ assignmentTitle, submittedFiles, classCode, assignId }: FileStorageProps) {
+    const navigate = useNavigate();
     const [filteredFiles, setFilteredFiles] = useState<FileStorage[]>(submittedFiles);
     const [paginatedFiles, setPaginatedFiles] = useState<FileStorage[]>([]);
     const [page, setPage] = useState<number>(0);
@@ -156,7 +161,7 @@ import { FileStorage } from "../../../util/base";
             {selectedFiles.length === 0 && (
                 <CardHeader
                     action={
-                    <Box width={150}>
+                    <Stack direction="row" spacing={2} width={250}>
                         <FormControl fullWidth variant="outlined">
                         <InputLabel>Status</InputLabel>
                         <Select
@@ -172,7 +177,10 @@ import { FileStorage } from "../../../util/base";
                             ))}
                         </Select>
                         </FormControl>
-                    </Box>
+                        <Button sx={{ width: 150 }} variant="contained" onClick={() => navigate(`/teacher/upload/${classCode}/${assignId}`)}>
+                            Upload
+                        </Button>
+                    </Stack>
                     }
                     title={assignmentTitle}
                 />
@@ -213,6 +221,7 @@ import { FileStorage } from "../../../util/base";
 
                             const timeString = new Date(file.dateUploaded).toLocaleTimeString('en-US');
                             const isSelected = selectedFiles.includes(file.file_id);
+                            const originality = 100 - (100 * file.originalityScore);
 
                             return (
                                 <TableRow
@@ -250,7 +259,7 @@ import { FileStorage } from "../../../util/base";
                                             noWrap
                                         >
                                             {file.assignmentList ? 
-                                                file.assignmentList.student.studentAccount.firstName + file.assignmentList.student.studentAccount.lastName : 
+                                                file.assignmentList.student.studentAccount.firstName + " " + file.assignmentList.student.studentAccount.lastName : 
                                                 "Sample File"
                                             }
                                         </Typography>
@@ -297,11 +306,11 @@ import { FileStorage } from "../../../util/base";
                                             gutterBottom
                                             noWrap
                                         >
-                                            {file.originalityScore === 0 ? "—" : `${file.originalityScore}%`}
+                                            {`${originality.toFixed(2)}%`}
                                         </Typography>
                                     </TableCell>
                                     <TableCell align="right">
-                                        {getStatusLabel(file.originalityScore)}
+                                        {getStatusLabel(originality)}
                                     </TableCell>
                                     <TableCell align="right">
                                         <Tooltip title="Assess Document" arrow>
@@ -314,6 +323,7 @@ import { FileStorage } from "../../../util/base";
                                             }}
                                             color="inherit"
                                             size="small"
+                                            onClick={() => navigate(`/teacher/assess/${file.fileUid}/${assignId}`)}
                                         >
                                             <InsertPageBreakTwoToneIcon fontSize="small" />
                                         </IconButton>

@@ -92,3 +92,29 @@ export async function createNewAssignment(assignment: Assignment, classId: numbe
 
     return await getClassroomData(classCode);
 }
+
+export async function editAssignmentData(assignment: Assignment, classId: number, classCode: string) {
+    const { assignmentId, assignTitle, assignDesc, assignDueDate, assignDueTime, assignPoints } = assignment;
+    const config = {
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    };
+
+    const body = JSON.stringify({ assignmentId, classId, assignTitle, assignDesc, assignDueDate, assignDueTime, assignPoints });
+    await axios.post(`${process.env.REACT_APP_API_URL}/class/assignment/update`, body, config);
+
+    return await getClassroomData(classCode);
+}
+
+export async function deleteAssignmentData(assignId: number, classCode: string) {
+    const config = {
+        headers: {
+            'Accept': 'application/json'
+        }
+    };
+
+    await axios.get(`${process.env.REACT_APP_API_URL}/class/assignment/delete/${assignId}`, config);
+
+    return await getClassroomData(classCode);
+}
