@@ -4,7 +4,6 @@ import PageTitleWrapper from "../../components/PageTitleWrapper";
 import PageHeader from "../../components/PageHeaders/Header";
 import Container from "@mui/material/Container";
 import { useParams } from "react-router-dom";
-import { noCase } from 'change-case';
 // Animation
 import { AnimatePresence, motion } from 'framer-motion';
 import { analyzeDocument, getDocumentComparison, getFileContentFromURL, getFileStorageData } from '../../util/GetRequests';
@@ -76,64 +75,33 @@ function AssessDocument() {
 
 
   useEffect(() => {
-    const lines: string[] = textContent.split("\r\n");
+    const lines: string[] = textContent.split(". ");
 
-    let pars: string[] = [];
-    let paragraph = "";
-    lines.forEach(line => {
-      let sentence = line.split('. ');
-      if (/\S/.test(sentence[sentence.length - 1]) === false) {
-          paragraph += line;
-          pars.push(paragraph);
-          paragraph = "";
-      } else {
-          if (paragraph.charAt(paragraph.length - 1) === ' ' || line.charAt(0) === ' ') {
-            paragraph += line;
-          } else paragraph += ` ${line}`;
-      }
-    });
-
-    setParagraphs(state => pars);
+    setParagraphs(state => lines);
     setLoading(false);
   }, [textContent]);
 
   //-------------------------------
 
    useEffect(() => {
-    const lines: string[] = similarContent.split("\r\n");
+    const lines: string[] = similarContent.split(". ");
 
-    let pars: string[] = [];
-    let paragraph = "";
-    lines.forEach(line => {
-      let sentence = line.split('. ');
-      if (/\S/.test(sentence[sentence.length - 1]) === false) {
-          paragraph += line;
-          pars.push(paragraph);
-          paragraph = "";
-      } else {
-          if (paragraph.charAt(paragraph.length - 1) === ' ' || line.charAt(0) === ' ') {
-            paragraph += line;
-          } else paragraph += ` ${line}`;
-      }
-    });
-
-    setSimilarParagraphs(state => pars);
+    setSimilarParagraphs(state => lines);
     setLoading(false);
   }, [similarContent]);
 
   const checkSources = (sentence: string): boolean => {
     for (let j = 0; j < sources.length; j++) {
-        const test = sources[j].split(">").filter(t => /\S/.test(t));
-    
-        const words = sentence.split(" ").filter(t => /\S/.test(t));
-        for (let x = 0; x < words.length; x++) {
-            if (!test[0]) break;
-            else {
-                if (test[0] === noCase(words[x]).replace(/\s/g, '')) test.shift();
-            }
-        }
+        const tests = sources[j].split(">");
         
-        if (test.length === 0) return true;
+        let count: number = 0;
+        tests.forEach(t => {
+            if (t.length > 2) {
+                if (sentence.toLowerCase().search(t) !== -1) count++;
+            }
+        })
+
+        if ((tests.length - count) < 5) return true;
     }
 
     return false;

@@ -61,16 +61,16 @@ export default function Signin() {
     .then( async (user) => {
       if (signupData.student) {
         await createStudentAccount(user.user.uid, signupData.name, signupData.email);
-        navigate("/student/app");
+        setSignin(false);
       }
       else {
         await createTeacherAccount(user.user.uid, signupData.name, signupData.email);
-        navigate("/teacher/app");
+        setSignin(false);
       }
     })
     .catch(err =>  {
       let errorMessage = (err as Error).message;
-      if (errorMessage === 'Firebase: Error (auth/email-already-in-use).') errorMessage = 'Account does not exist.';
+      if (errorMessage === 'Firebase: Error (auth/email-already-in-use).') errorMessage = 'Account already exist.';
       else if (errorMessage.search('(auth/weak-password)') !== -1 ) errorMessage = 'Weak Password.';
       
       setError(errorMessage)
