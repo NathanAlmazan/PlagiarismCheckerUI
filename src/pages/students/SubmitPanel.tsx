@@ -8,10 +8,11 @@ import Container from "@mui/material/Container";
 // Utils
 import { useParams, useNavigate } from 'react-router-dom';
 import { noCase } from 'change-case';
-import { analyzeDocument, getFilePlainContent, submitPDF, deleteDocument, getAssignmentDate } from '../../util/GetRequests';
+import { analyzeDocument, getFilePlainContent, submitPDF, deleteDocument, getAssignmentDate, saveAssignment } from '../../util/GetRequests';
 // Animation
 import { AnimatePresence, motion } from 'framer-motion';
 import { Assignment } from '../../util/base';
+import { useAuth } from '../../hocs/AuthProvider';
 
 const UploadFile = React.lazy(() => import("../../components/FileUpload/Upload"));
 const FileAnalyzer = React.lazy(() => import("../../components/FileUpload/FileAnalyzer"));
@@ -24,7 +25,9 @@ type FileInformation = {
 
 function SubmitPanel() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { classCode, assignId } = useParams();
+  const [studentId, setStudentId] = useState<number>();
   const [assignmentData, setAssignmentData] = useState<Assignment>();
   const [paragraphs, setParagraphs] = useState<string[]>([]);
   const [sources, setSources] = useState<string[]>([]);
@@ -36,6 +39,12 @@ function SubmitPanel() {
   const [plagiarizedFile, setPlagiarizedFile] = useState<string>();
   const [fileInfo, setFileInfo] = useState<FileInformation>();
   const [success, setSuccess] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (user) {
+      if (user.student) setStudentId(user.student)
+    }
+  }, [user])
 
   useEffect(() => {
     if (classCode && assignId) {
@@ -105,6 +114,10 @@ function SubmitPanel() {
           setPlagiarized(true);
         } else {
           setPlagiarized(false);
+          if (studentId) {
+            await saveAssignment(studentId, parseInt(assignId), uploaded.file_id);
+            console.log("Saved");
+          }
           setSuccess(true);
           setDocument(null);
           navigate(-1);
@@ -125,11 +138,13 @@ function SubmitPanel() {
 
   const saveFile = async () => {
     setUploaded(false);
-    //if (fileInfo && assignId) await saveAssignment(69, parseInt(assignId), fileInfo.fileId);
+    if (fileInfo && assignId && studentId) {
+      await saveAssignment(studentId, parseInt(assignId), fileInfo.fileId);
+    }
     setUploaded(true);
     setSuccess(true);
     setDocument(null);
-    navigate(-1);
+    navigate(-1)
   }
 
   return (
@@ -139,6 +154,7 @@ function SubmitPanel() {
         <PageHeader 
           title={assignmentData ? assignmentData.assignTitle : 'Assignment Title'}
           subtitle="This panel will analyze your assignment's originality."
+          back
         />
       </PageTitleWrapper>
      

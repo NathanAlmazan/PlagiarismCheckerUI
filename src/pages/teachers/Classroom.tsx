@@ -54,8 +54,8 @@ function ClassroomPage() {
 
   const handleCreateAssignment = (assignment: Assignment) => {
     if (classDetails) {
+      setCreateAssign(false);
       createNewAssignment(assignment, classDetails.classroomId, classDetails.classroomCode).then(data => {
-        setCreateAssign(false);
         setClassDetails(data);
         setSelected(data.assignments.find(a => a.assignTitle === assignment.assignTitle));
         setMessage("Successfully added " + assignment.assignTitle);
@@ -66,9 +66,9 @@ function ClassroomPage() {
   const saveAssignmentChanges = (assignment: Assignment) => {
     if (classDetails && editAssignment) {
       assignment.assignmentId = editAssignment.assignmentId;
+      setEditAssignment(undefined);
 
       editAssignmentData(assignment, classDetails.classroomId, classDetails.classroomCode).then(data => {
-        setEditAssignment(undefined);
         setClassDetails(data);
         setSelected(data.assignments.find(a => a.assignTitle === assignment.assignTitle));
         setMessage("Successfully updated " + assignment.assignTitle);
@@ -85,6 +85,7 @@ function ClassroomPage() {
             subtitle="View and manage your classroom's tasks." 
             buttonText="Add Assignment" 
             buttonClick={() => setCreateAssign(true)}
+            back
         />
       </PageTitleWrapper>
       <Container>
@@ -96,8 +97,9 @@ function ClassroomPage() {
               selectAssign={handleSelectAssign}
               editAssign={handleEditAssign}
               deleteAssign={handleDeleteAssign}
+              classCode={classCode as string}
             />
-
+            <div ref={studentListSection} />
             {classDetails.assignments.length > 0 && (
               <FileStorageList 
                 assignmentTitle={seletced ? seletced.assignTitle : classDetails.assignments[0].assignTitle} 

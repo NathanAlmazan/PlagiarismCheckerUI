@@ -3,21 +3,21 @@ import { BrowserRouter } from "react-router-dom";
 import Router from "./Router";
 // Custom Providers
 import { HelmetProvider } from "react-helmet-async";
-import { SidebarProvider } from "./components/contexts/SidebarContext";
 // Themes
 import CssBaseline from "@mui/material/CssBaseline";
 import ThemeProvider from "./theme/ThemeProvider";
+import AuthProvider from "./hocs/AuthProvider";
 
 function App() {
   return (
     <ThemeProvider>
       <CssBaseline />
       <HelmetProvider>
-        <SidebarProvider>
-          <BrowserRouter>
-            <Router />
-          </BrowserRouter>
-        </SidebarProvider>
+        <AuthProvider>
+            <BrowserRouter>
+              <Router />
+            </BrowserRouter>
+        </AuthProvider>
       </HelmetProvider>
     </ThemeProvider>
   );

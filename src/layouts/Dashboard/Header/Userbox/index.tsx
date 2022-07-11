@@ -16,12 +16,12 @@ import {
   Typography
 } from '@mui/material';
 
-import InboxTwoToneIcon from '@mui/icons-material/InboxTwoTone';
 import { styled } from '@mui/material/styles';
 import ExpandMoreTwoToneIcon from '@mui/icons-material/ExpandMoreTwoTone';
 import AccountBoxTwoToneIcon from '@mui/icons-material/AccountBoxTwoTone';
 import LockOpenTwoToneIcon from '@mui/icons-material/LockOpenTwoTone';
 import AccountTreeTwoToneIcon from '@mui/icons-material/AccountTreeTwoTone';
+import { useAuth } from '../../../../hocs/AuthProvider';
 
 const UserBoxButton = styled(Button)(
   ({ theme }) => `
@@ -59,12 +59,7 @@ const UserBoxDescription = styled(Typography)(
 );
 
 function HeaderUserbox() {
-  const user = {
-    name: 'Catherine Pike',
-    avatar: '/static/images/avatars/1.jpg',
-    jobtitle: 'Project Manager'
-  };
-
+  const { user, handleSignOut } = useAuth();
   const ref = useRef<any>(null);
   const [isOpen, setOpen] = useState<boolean>(false);
 
@@ -78,13 +73,14 @@ function HeaderUserbox() {
 
   return (
     <>
-      <UserBoxButton color="secondary" ref={ref} onClick={handleOpen}>
-        <Avatar variant="rounded" alt={user.name} src={user.avatar} />
+      {user && (
+        <UserBoxButton color="secondary" ref={ref} onClick={handleOpen}>
+        <Avatar variant="rounded">{user.account.firstName.slice(0, 2)}</Avatar>
         <Hidden mdDown>
           <UserBoxText>
-            <UserBoxLabel variant="body1">{user.name}</UserBoxLabel>
+            <UserBoxLabel variant="body1">{user.account.firstName + " " + user.account.lastName}</UserBoxLabel>
             <UserBoxDescription variant="body2">
-              {user.jobtitle}
+              {user.account.email.slice(0, 15) + "..."}
             </UserBoxDescription>
           </UserBoxText>
         </Hidden>
@@ -92,6 +88,7 @@ function HeaderUserbox() {
           <ExpandMoreTwoToneIcon sx={{ ml: 1 }} />
         </Hidden>
       </UserBoxButton>
+      )}
       <Popover
         anchorEl={ref.current}
         onClose={handleClose}
@@ -105,28 +102,26 @@ function HeaderUserbox() {
           horizontal: 'right'
         }}
       >
-        <MenuUserBox sx={{ minWidth: 210 }} display="flex">
-          <Avatar variant="rounded" alt={user.name} src={user.avatar} />
-          <UserBoxText>
-            <UserBoxLabel variant="body1">{user.name}</UserBoxLabel>
-            <UserBoxDescription variant="body2">
-              {user.jobtitle}
-            </UserBoxDescription>
-          </UserBoxText>
-        </MenuUserBox>
+        {user && (
+          <MenuUserBox sx={{ minWidth: 210 }} display="flex">
+            <Avatar variant="rounded">{user.account.firstName.slice(0, 2)}</Avatar>
+            <UserBoxText>
+              <UserBoxLabel variant="body1">{user.account.firstName + " " + user.account.lastName}</UserBoxLabel>
+              <UserBoxDescription variant="body2">
+                {user.account.email}
+              </UserBoxDescription>
+            </UserBoxText>
+          </MenuUserBox>
+        )}
         <Divider sx={{ mb: 0 }} />
         <List sx={{ p: 1 }} component="nav">
-          <ListItem button to="/management/profile/details" component={NavLink}>
+          <ListItem button to="#" component={NavLink}>
             <AccountBoxTwoToneIcon fontSize="small" />
             <ListItemText primary="My Profile" />
           </ListItem>
-          <ListItem button to="/dashboards/messenger" component={NavLink}>
-            <InboxTwoToneIcon fontSize="small" />
-            <ListItemText primary="Messenger" />
-          </ListItem>
           <ListItem
             button
-            to="/management/profile/settings"
+            to="#"
             component={NavLink}
           >
             <AccountTreeTwoToneIcon fontSize="small" />
@@ -135,7 +130,7 @@ function HeaderUserbox() {
         </List>
         <Divider />
         <Box sx={{ m: 1 }}>
-          <Button color="primary" fullWidth>
+          <Button color="primary" onClick={() => handleSignOut()} fullWidth>
             <LockOpenTwoToneIcon sx={{ mr: 1 }} />
             Sign out
           </Button>

@@ -1,19 +1,13 @@
-import { useContext } from 'react';
-
 import {
   Box,
   alpha,
   Stack,
   lighten,
   Divider,
-  IconButton,
   Tooltip,
   styled,
   useTheme
 } from '@mui/material';
-import MenuTwoToneIcon from '@mui/icons-material/MenuTwoTone';
-import { SidebarContext } from '../../../components/contexts/SidebarContext';
-import CloseTwoToneIcon from '@mui/icons-material/CloseTwoTone';
 
 import HeaderButtons from './Buttons';
 import HeaderUserbox from './Userbox';
@@ -35,7 +29,6 @@ const HeaderWrapper = styled(Box)(
 );
 
 function Header() {
-  const { sidebarToggle, toggleSidebar } = useContext(SidebarContext);
   const theme = useTheme();
 
   return (
@@ -71,14 +64,8 @@ function Header() {
             display: 'inline-block'
           }}
         >
-          <Tooltip arrow title="Toggle Menu">
-            <IconButton color="primary" onClick={toggleSidebar}>
-              {!sidebarToggle ? (
-                <MenuTwoToneIcon fontSize="small" />
-              ) : (
-                <CloseTwoToneIcon fontSize="small" />
-              )}
-            </IconButton>
+          <Tooltip arrow title="Plagiarism Checker">
+            <img src="https://swingsearch.com/wp-content/uploads/2020/02/cropped-logo-new-p.png" alt="LOGO" style={{ width: 30, height: 30 }} />
           </Tooltip>
         </Box>
       </Stack>

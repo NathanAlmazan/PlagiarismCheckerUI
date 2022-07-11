@@ -1,0 +1,69 @@
+@import url('https://fonts.googleapis.com/css?family=Montserrat:400,800');
+
+:root { 
+  --fontSize: 16px;
+  --headingSize: 32px;
+  --lineHeight: 150%;
+  --textColor: #57565b;
+  --heading: #5e6060;
+  --fontFamily: 'Montserrat', sans-serif;
+  --fontFamilySecondary: 'Montserrat', sans-serif;
+  --fontWeight: 400;
+
+  --background: #f8fafb;
+  --postBackground: #fff;
+  --navigationText: #a1a3a3;
+  --navigationBackground: #111;
+  --navigationBorders: #2f2f2f;
+
+  --accentColor: #F5C2A2;
+  --accentColorRGB: 245, 194, 162;
+  --accentText: #fff;
+  --postBorders: #e8e8e8;
+
+  --bulletIcon: "\f00d";
+  --borderRadius: 20px;
+
+  --gridItemWidth: 300px;
+  --gridItemImageHeight: 150px;
+
+  /*responsive*/
+  --mediaBreak1: var(--barWidth) + var(--postWidth) + 50px;
+
+  /*color per tab if enabled above*/
+}
+
+/*CLASS*/
+
+.divider {
+  height: 1px;
+  width: 100%;
+  background: var(--postBorders);
+  margin: 20px 0 20px;
+}
+
+.class-content {
+  position: absolute;
+  top: 0;
+  left: 0;
+  padding: 25px;
+  height: 170px;
+  color: #FFFF;
+}
+
+.class .heading {
+  font-size: 1.25rem;
+}
+
+.class {
+  justify-content: space-between;
+  align-items: center;
+}
+
+.avatar {
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin-top: 100px;
+  margin-right: 10px;
+}

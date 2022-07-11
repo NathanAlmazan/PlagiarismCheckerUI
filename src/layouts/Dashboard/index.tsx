@@ -2,9 +2,7 @@ import { FC, ReactNode } from 'react';
 import { Box, alpha, lighten, useTheme } from '@mui/material';
 import { Outlet } from 'react-router-dom';
 
-import Sidebar from './Sidebar';
 import Header from './Header';
-import Footer from "../../components/Footer";
 
 interface SidebarLayoutProps {
   children?: ReactNode;
@@ -43,7 +41,6 @@ const SidebarLayout: FC<SidebarLayoutProps> = () => {
         }}
       >
         <Header />
-        <Sidebar />
         <Box
           sx={{
             position: 'relative',
@@ -55,7 +52,7 @@ const SidebarLayout: FC<SidebarLayoutProps> = () => {
         >
           <Box display="block">
             <Outlet />
-            <Footer />
+            <Box sx={{ height: 50 }} />
           </Box>
         </Box>
       </Box>

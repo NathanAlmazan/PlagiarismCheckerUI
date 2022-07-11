@@ -1,6 +1,45 @@
 import axios from "axios";
 import { Assignment } from "./base";
-import { getClassroomData, getTeacherSubjects } from "./GetRequests";
+import { getClassroomData, getTeacherSubjects, getStudentClassrooms } from "./GetRequests";
+
+export async function createStudentAccount(uid: string, name: string, email: string, level?: string) {
+    const config = {
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    };
+
+    const body = JSON.stringify({
+        accountUid: uid,
+        firstName: name.split(' ')[0],
+        lastName: name.split(' ')[1],
+        email: email,
+        provider: "EmailPass",
+        level: level ? level : "HS"
+    });
+
+    await axios.post(`${process.env.REACT_APP_API_URL}/accounts/student/create`, body, config);
+}
+
+export async function createTeacherAccount(uid: string, name: string, email: string, school?: string, specialization?: string) {
+    const config = {
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    };
+
+    const body = JSON.stringify({
+        accountUid: uid,
+        firstName: name.split(' ')[0],
+        lastName: name.split(' ')[1],
+        email: email,
+        provider: "EmailPass",
+        school: school ? school : "NONE",
+        specialization: specialization ? specialization : "NONE"
+    });
+
+    await axios.post(`${process.env.REACT_APP_API_URL}/accounts/teacher/create`, body, config);
+}
 
 export async function createNewSubject(subjectTitle: string, subjectDescription: string, teacherId: number) {
     const config = {
@@ -117,4 +156,17 @@ export async function deleteAssignmentData(assignId: number, classCode: string) 
     await axios.get(`${process.env.REACT_APP_API_URL}/class/assignment/delete/${assignId}`, config);
 
     return await getClassroomData(classCode);
+}
+
+export async function enrollStudentToClass(studentId: number, classCode: string) {
+    const config = {
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    };
+
+    const body = JSON.stringify({ studentId, classCode });
+    await axios.post(`${process.env.REACT_APP_API_URL}/class/room/enroll`, body, config);
+
+    return await getStudentClassrooms(studentId);
 }

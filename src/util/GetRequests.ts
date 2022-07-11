@@ -13,6 +13,32 @@ type PlainResponse = {
     message: string
 }
 
+export type AccountData = {
+    account_uid: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    provider: string;
+    accountType: string;
+    teacher: {
+        teacherId: number;
+    } | null;
+    student: {
+        studentId: number;
+    } | null;
+}
+
+export async function getAccountData(uid: string) {
+    const config = {
+        headers: {
+            'Accept': 'application/json'
+        }
+    };
+
+    const response = await axios.get(`${process.env.REACT_APP_API_URL}/accounts/find/${uid}`, config);
+    return response.data as AccountData;
+}
+
 export async function getAssignmentDate(classCode: string, assignId: number) {
     const config = {
         headers: {
@@ -104,7 +130,7 @@ export async function analyzeDocument(documentId: number, assignId: number): Pro
         if (!cosineDistance.file_id) return null;
         const comparison = await getDocumentComparison(documentId, cosineDistance.file_id);
 
-        if (comparison.similarSentences.length > 1 && comparison.cosineDistance > 0.49) {
+        if (comparison.similarSentences.length > 1 && comparison.cosineDistance > 0.40) {
             comparison.source = cosineDistance;
             return comparison;
         } else {
@@ -167,4 +193,36 @@ export async function getFileContentFromURL(fileUid: string) {
     
     const response = await axios.get(`${process.env.REACT_APP_API_URL}/analyzer/file/content/${fileUid}`, config);
     return response.data as PlainResponse;
+}
+
+export type ClassroomData = {
+    classroomId: number;
+    classroomCode: string;
+    classroomName: string;
+    classSubject: {
+        subjectName: string;
+        teacherName: string;
+    }
+}
+
+export async function getStudentClassrooms(studentId: number) {
+    const config = {
+        headers: {
+            'Accept': 'application/json'
+        }
+    };
+    
+    const response = await axios.get(`${process.env.REACT_APP_API_URL}/class/room/find/${studentId}`, config);
+    return response.data as ClassroomData[];
+}
+
+export async function getStudentAssignments(studentId: number) {
+    const config = {
+        headers: {
+            'Accept': 'application/json'
+        }
+    };
+    
+    const response = await axios.get(`${process.env.REACT_APP_API_URL}/class/assignment/student/${studentId}`, config);
+    return response.data as number[];
 }

@@ -10,14 +10,16 @@ import { AnimatePresence, motion } from "framer-motion";
 type AssignmentListProps = {
     assignments: ClassAssignment[];
     selected?: number;
+    classCode: string;
+    submitted?: number[];
     selectAssign: (assign: ClassAssignment) => void;
-    editAssign: (assign: ClassAssignment) => void;
-    deleteAssign: (assignId: number) => void;
+    editAssign?: (assign: ClassAssignment) => void;
+    deleteAssign?: (assignId: number) => void;
 }
 
 const colorList = [ "#ff6666", "#ffbd55", "#ffff66", "#9de24f", "#87cefa", "#b19cd9" ];
 
-function AssignmentList({ assignments, selected, editAssign, deleteAssign, selectAssign }: AssignmentListProps) {
+function AssignmentList({ assignments, selected, classCode, submitted, editAssign, deleteAssign, selectAssign }: AssignmentListProps) {
   const [colors, setColors] = useState<string[]>(colorList);
 
   useEffect(()=> {
@@ -70,10 +72,12 @@ function AssignmentList({ assignments, selected, editAssign, deleteAssign, selec
                         <AssignmentCard 
                             assignment={assignment}
                             color={colors[i]}
+                            classCode={classCode}
                             selected={selected === assignment.assignmentId}
                             selectSubject={() => selectAssign(assignment)}
-                            editSubject={() => editAssign(assignment)}
-                            deleteSubject={() => deleteAssign(assignment.assignmentId)}
+                            editSubject={editAssign ? () => editAssign(assignment) : undefined}
+                            deleteSubject={deleteAssign ? () => deleteAssign(assignment.assignmentId) : undefined}
+                            submitted={submitted ? Boolean(submitted.find(s => s === assignment.assignmentId) !== undefined) : undefined}
                         />
                     </motion.div>
                 ))}

@@ -1,5 +1,6 @@
 // components
 import React, { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 // Components
 import { Helmet } from "react-helmet-async";
 import PageTitleWrapper from "../../components/PageTitleWrapper";
@@ -11,6 +12,7 @@ import { getTeacherSubjects } from "../../util/GetRequests";
 import { createNewClassroom, createNewSubject, editSubjectData, deleteSubject, deleteClassroom, editClassroomData } from "../../util/PostRequests"; 
 // Animation 
 import { AnimatePresence, motion } from "framer-motion";
+import { useAuth } from "../../hocs/AuthProvider";
 
 const SubjectList = React.lazy(() => import("../../components/classroom/SubjectList"));
 const ClassList = React.lazy(() => import("../../components/classroom/ClassList"));
@@ -21,16 +23,25 @@ const LoadingOverlay = React.lazy(() => import("../../components/SuspenseLoader/
 const ErrorDialog = React.lazy(() => import("../../components/dialogs/ErrorDialog"));
 
 function Dashboard() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [teacherId, setTeacherId] = useState<number>(0);
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [selected, setSelected] = useState<Subject>();
   const [createSub, setCreateSub] = useState<boolean>(false);
   const [createClass, setCreateClass] = useState<boolean>(false);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true);
   const [editSubject, setEditSubject] = useState<Subject | null>(null);
   const [editRoom, setEditRoom] = useState<Classroom | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const classListSection = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!user) navigate("/");
+    else if (!user.teacher) navigate("/student/app");
+    else setTeacherId(state => user.teacher as number);
+  }, [user, navigate])
 
   const handleSelectSubject = (subjectId: number) => {
     setSelected(subjects.find(s => s.subjectId === subjectId));
@@ -41,29 +52,30 @@ function Dashboard() {
   }
 
   useEffect(() => {
-    getTeacherSubjects(1).then(data => {
+    getTeacherSubjects(teacherId).then(data => {
         setSubjects(state => data);
         setSelected(state => data[0]);
+        setLoading(state => false);
     })
     .catch(err => console.log(err.message));
-  }, []);
+  }, [teacherId]);
 
   const handleAddSuject = (title: string, desc: string) => {
     setLoading(true);
-    createNewSubject(title, desc, 1).then(data => {
+    setCreateSub(false);
+    createNewSubject(title, desc, teacherId).then(data => {
         setSubjects(data);
         setLoading(false);
-        setCreateSub(false);
         setMessage("Successfully added " + title);
     }).catch(err => console.log(err.message));
   }
 
   const handleAddClass = (subjectId: number, className: string) => {
     setLoading(true);
-    createNewClassroom(subjectId, className, 1).then(data => {
+    setCreateClass(false);
+    createNewClassroom(subjectId, className, teacherId).then(data => {
         setSubjects(data);
         setLoading(false);
-        setCreateClass(false);
         setMessage("Successfully added " + className);
 
         const classSub = data.find(s => s.subjectId === subjectId)
@@ -73,7 +85,8 @@ function Dashboard() {
 
   const handleEditSubject = (title: string, desc: string) => {
     if (editSubject) {
-        editSubjectData(title, desc, editSubject.subjectId, 1)
+        setEditSubject(null);
+        editSubjectData(title, desc, editSubject.subjectId, teacherId)
         .then(data => {
             setSubjects(data);
             
@@ -81,14 +94,13 @@ function Dashboard() {
             if (classSub) setSelected(classSub);
 
             setMessage("Sucessfully updated " + title);
-            setEditSubject(null);
         })
         .catch(err => console.log(err.message));
     }
   }
 
   const handleDeleteSubject = (subjectId: number) => {
-    deleteSubject(subjectId, 1).then(data => {
+    deleteSubject(subjectId, teacherId).then(data => {
         setSubjects(data);
         setSelected(data[0]);
         setMessage("Subject was deleted sucessfully.");
@@ -97,20 +109,20 @@ function Dashboard() {
 
   const handleEditClassroom = (subjectId: number, className: string) => {
     if (editRoom) {
-        editClassroomData(editRoom.classroomId, className, subjectId, 1).then(data => {
+        setEditRoom(null);
+        editClassroomData(editRoom.classroomId, className, subjectId, teacherId).then(data => {
             setSubjects(data);
             
             const classSub = data.find(s => s.subjectId === subjectId)
             if (classSub) setSelected(classSub);
 
             setMessage("Sucessfully updated " + className);
-            setEditRoom(null);
         }).catch(err => console.log(err.message));
     }
   } 
 
   const handleDeleteClassroom = (classId: number) => {
-    deleteClassroom(classId, 1).then(data => {
+    deleteClassroom(classId, teacherId).then(data => {
         setSubjects(data);
 
         if (selected) {
@@ -121,7 +133,7 @@ function Dashboard() {
         setMessage("Classroom was deleted sucessfully.");
 
     }).catch(err => {
-        getTeacherSubjects(1).then(data => {
+        getTeacherSubjects(teacherId).then(data => {
             setSubjects(data);
 
             if (selected) {
@@ -139,7 +151,7 @@ function Dashboard() {
         <Helmet><title>Teacher Dashboard</title></Helmet>
         <PageTitleWrapper>
             <PageHeader 
-                title="Good Day, Nathan" 
+                title={user ? "Good Day, " + user.account.firstName : "Good Day" }
                 subtitle="View and manage your subjects and classrooms" 
                 buttonText="Create Classroom" 
                 buttonClick={() => setCreateClass(true)}
