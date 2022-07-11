@@ -247,7 +247,7 @@ import { FileStorage } from "../../../util/base";
                                             gutterBottom
                                             noWrap
                                         >
-                                            {file.fileUid.slice(0, 15) + "..."}
+                                            {file.fileUid.split("-")[0]}
                                         </Typography>
                                     </TableCell>
                                     <TableCell>

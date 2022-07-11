@@ -152,11 +152,12 @@ function FileAnalyzer(props: AnalyzerProps) {
                         <Typography variant="h4" color="primary" sx={{ mb: 3 }}>
                         {fileName}
                         </Typography>
+                        <Typography variant="body1" component="p" align="justify">
                         {paragraphs.map((text, i) => {
                             const sentences = text.split('. ');
 
                             return (
-                                <Typography key={i} variant="body1" component="p" align="justify" sx={{ mb: 1 }}>
+                                <Typography key={i} variant="body1" component="span">
                                     {sentences.map((sentence, i) => (
                                         checkSources(sentence) ? <span key={i} style={{ backgroundColor: '#ffcac8' }}>{sentence + '. '}</span> :
                                         <span key={i}>{/\S/.test(sentence) && sentence + '. '}</span>
@@ -164,6 +165,7 @@ function FileAnalyzer(props: AnalyzerProps) {
                                 </Typography>
                             )
                         })}
+                        </Typography>
                     </Paper>
                 </TabPanel>
                 {similarFileName !== undefined && (
@@ -172,11 +174,12 @@ function FileAnalyzer(props: AnalyzerProps) {
                             <Typography variant="h4" color="primary" sx={{ mb: 3 }}>
                                 {similarFileName}
                             </Typography>
+                            <Typography variant="body1" component="p" align="justify">
                             {similarParagraphs && similarParagraphs.map((text, i) => {
                                 const sentences = text.split('. ');
 
                                 return (
-                                    <Typography key={i} variant="body1" component="p" align="justify" sx={{ mb: 1 }}>
+                                    <Typography key={i} variant="body1" component="span">
                                         {sentences.map((sentence, i) => (
                                             checkSources(sentence) ? <span key={i} style={{ backgroundColor: '#ffcac8' }}>{sentence + '. '}</span> :
                                             <span key={i}>{/\S/.test(sentence) && sentence + '. '}</span>
@@ -184,6 +187,7 @@ function FileAnalyzer(props: AnalyzerProps) {
                                     </Typography>
                                 )
                             })}
+                            </Typography>
                         </Paper>
                     </TabPanel>
                 )}
@@ -194,18 +198,20 @@ function FileAnalyzer(props: AnalyzerProps) {
                     <Typography variant="h4" color="primary" sx={{ mb: 3 }}>
                     {fileName}
                     </Typography>
-                    {paragraphs.map((text, i) => {
-                        const sentences = text.split('. ');
+                    <Typography variant="body1" component="p" align="justify">
+                        {paragraphs.map((text, i) => {
+                            const sentences = text.split('. ');
 
-                        return (
-                            <Typography key={i} variant="body1" component="p" align="justify" sx={{ mb: 1 }}>
-                                {sentences.map((sentence, i) => (
-                                    checkSources(sentence) ? <span key={i} style={{ backgroundColor: '#ffcac8' }}>{sentence + '. '}</span> :
-                                    <span key={i}>{/\S/.test(sentence) && sentence + '. '}</span>
-                                ))}
-                            </Typography>
-                        )
-                    })}
+                            return (
+                                <Typography key={i} variant="body1" component="span">
+                                    {sentences.map((sentence, i) => (
+                                        checkSources(sentence) ? <span key={i} style={{ backgroundColor: '#ffcac8' }}>{sentence + '. '}</span> :
+                                        <span key={i}>{/\S/.test(sentence) && sentence + '. '}</span>
+                                    ))}
+                                </Typography>
+                            )
+                        })}
+                    </Typography>
                 </Paper>
             </Grid>
         )}
