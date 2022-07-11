@@ -6,6 +6,8 @@ import PageTitleWrapper from "../../components/PageTitleWrapper";
 import PageHeader from "../../components/PageHeaders/HeaderButton";
 import Container from "@mui/material/Container";
 import Grid from "@mui/material/Grid";
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
 import Card from "@mui/material/Card";
 import CardMedia from "@mui/material/CardMedia";
 import { useTheme } from "@mui/material/styles";
@@ -90,6 +92,20 @@ export default function Dashboard() {
                     </Grid>
                 ))}
             </Grid>
+            {classrooms.length === 0 && (
+                <Box sx={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    flexDirection: "column",
+                    width: '100%',
+                    mt: 10,
+                    height: { xs: 200, sm: 280 }
+                }}>
+                    <img alt="assignment" src="/images/covers/assignment.png" style={{ objectFit: "scale-down", height: "100%" }} />
+                    <Typography variant="h3" align="center">No Classroom assigned yet. Please click the enroll button.</Typography>
+                </Box>
+            )}
         </Container>
         <LoadingOverlay open={loading} />
         <EnrollClassroom

@@ -68,14 +68,26 @@ export default function Signin() {
         navigate("/teacher/app");
       }
     })
-    .catch(err => setError((err as Error).message));
+    .catch(err =>  {
+      let errorMessage = (err as Error).message;
+      if (errorMessage === 'Firebase: Error (auth/email-already-in-use).') errorMessage = 'Account does not exist.';
+      else if (errorMessage.search('(auth/weak-password)') !== -1 ) errorMessage = 'Weak Password.';
+      
+      setError(errorMessage)
+    });
   }
 
   const handleSignin = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     signInWithEmailAndPassword(firebaseAuth, signinData.email, signinData.password)
-    .catch(err => setError((err as Error).message));
+    .catch(err => {
+      let errorMessage = (err as Error).message;
+      if (errorMessage === 'Firebase: Error (auth/user-not-found).') errorMessage = 'Account does not exist.';
+      else if (errorMessage === 'Firebase: Error (auth/wrong-password).') errorMessage = 'Wrong password.';
+      
+      setError(errorMessage)
+    });
   }
 
   return (

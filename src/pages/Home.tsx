@@ -9,10 +9,12 @@ function Home() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (user) {
-      if (user.teacher) navigate("/teacher/app");
-      else if (user.student) navigate("/student/app");
-    }
+    setTimeout(function() {
+      if (user) {
+        if (user.teacher) navigate("/teacher/app");
+        else if (user.student) navigate("/student/app");
+      } else navigate("/account");
+    }, 800)
   }, [user, navigate])
 
   return (

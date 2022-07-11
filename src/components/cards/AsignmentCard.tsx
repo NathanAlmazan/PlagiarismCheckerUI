@@ -13,6 +13,7 @@ import DeleteDialog from "../dialogs/DeletePromptDialog";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
+import DoneAllIcon from '@mui/icons-material/DoneAll';
 import PublishIcon from '@mui/icons-material/Publish';
 import { Assignment } from "../../util/base";
 
@@ -77,13 +78,22 @@ function AsignmentCard({ assignment, selected, classCode, color, submitted, sele
             }}
         >
             {Boolean(!selected || !editSubject) && (
-                <IconButtton sx={{ borderRadius: "50%" }} disabled={submitted} onClick={editSubject ? selectSubject : handleSubmitAssign}>
-                    <Tooltip title={editSubject ? "Show Classrooms" : "Submit Assignment"}>
-                        {editSubject ? 
-                            <ExpandMoreIcon color="inherit" /> : <PublishIcon color="inherit" />    
-                        }
-                    </Tooltip>
-                </IconButtton>
+                submitted ? (
+                    <IconButtton sx={{ borderRadius: "50%" }}>
+                        <Tooltip title={"Finished Task"}>
+                           <DoneAllIcon color="inherit" />
+                        </Tooltip>
+                    </IconButtton>
+
+                ) : (
+                    <IconButtton sx={{ borderRadius: "50%" }} onClick={editSubject ? selectSubject : handleSubmitAssign}>
+                        <Tooltip title={editSubject ? "Show Classrooms" : "Submit Assignment"}>
+                            {editSubject ? 
+                                <ExpandMoreIcon color="inherit" /> : <PublishIcon color="inherit" />    
+                            }
+                        </Tooltip>
+                    </IconButtton>
+                )
             )}
             {editSubject && (
                 <IconButtton onClick={editSubject} sx={{ borderRadius: "50%" }}>

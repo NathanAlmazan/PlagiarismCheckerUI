@@ -91,7 +91,7 @@ function AssignmentList({ assignments, selected, classCode, submitted, editAssig
                         height: { xs: 200, sm: 280 }
                     }}>
                         <img alt="assignment" src="/images/covers/assignment.png" style={{ objectFit: "scale-down", height: "100%" }} />
-                        <Typography variant="h5" align="center">No Assignment assigned yet. Click Add Assignment to add one.</Typography>
+                        <Typography variant="h3" align="center">No Assignment assigned yet</Typography>
                     </Box>
                 )}
             </AnimatePresence>
