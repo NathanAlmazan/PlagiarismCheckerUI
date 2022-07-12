@@ -52,13 +52,15 @@ function Dashboard() {
   }
 
   useEffect(() => {
-    getTeacherSubjects(teacherId).then(data => {
-        setSubjects(state => data);
-        setSelected(state => data[0]);
-        setLoading(state => false);
-    })
-    .catch(err => console.log(err.message));
-  }, [teacherId]);
+    if (subjects.length === 0) {
+        getTeacherSubjects(teacherId).then(data => {
+            setSubjects(state => data);
+            setSelected(state => data[0]);
+            setLoading(state => false);
+        })
+        .catch(err => console.log(err.message));
+    }
+  }, [teacherId, subjects]);
 
   const handleAddSuject = (title: string, desc: string) => {
     setLoading(true);

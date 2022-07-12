@@ -42,7 +42,7 @@ function ClassroomPage() {
             })
             .catch(err => console.log(err.message));
         }
-    }
+    } else navigate("/");
   }, [user, navigate]);
 
   const handleSelectAssign = (assign: ClassAssignment) => {

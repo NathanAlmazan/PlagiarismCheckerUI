@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 
 import {
   Avatar,
@@ -60,6 +60,7 @@ const UserBoxDescription = styled(Typography)(
 
 function HeaderUserbox() {
   const { user, handleSignOut } = useAuth();
+  const navigate = useNavigate();
   const ref = useRef<any>(null);
   const [isOpen, setOpen] = useState<boolean>(false);
 
@@ -70,6 +71,12 @@ function HeaderUserbox() {
   const handleClose = (): void => {
     setOpen(false);
   };
+
+  const signOutUser = async () => {
+    await handleSignOut();
+    navigate("/");
+
+  }
 
   return (
     <>
@@ -130,7 +137,7 @@ function HeaderUserbox() {
         </List>
         <Divider />
         <Box sx={{ m: 1 }}>
-          <Button color="primary" onClick={() => handleSignOut()} fullWidth>
+          <Button color="primary" onClick={signOutUser} fullWidth>
             <LockOpenTwoToneIcon sx={{ mr: 1 }} />
             Sign out
           </Button>

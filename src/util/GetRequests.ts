@@ -127,10 +127,12 @@ export async function analyzeDocument(documentId: number, assignId: number): Pro
 
     for (let x = 0; x < 2; x++) {
         const cosineDistance = await getDocumentDistance(documentId, assignId, excludeDocuments);
+        //console.log(cosineDistance);
         if (!cosineDistance.file_id) return null;
         const comparison = await getDocumentComparison(documentId, cosineDistance.file_id);
+        //console.log(comparison);
 
-        if (comparison.similarSentences.length > 1 && comparison.cosineDistance > 0.40) {
+        if (comparison.similarSentences.length > 1) {
             comparison.source = cosineDistance;
             return comparison;
         } else {

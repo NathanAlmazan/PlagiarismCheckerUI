@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 // Components
 import { Helmet } from "react-helmet-async";
 import Container from "@mui/material/Container";
@@ -9,6 +9,7 @@ import PageHeader from "../../components/PageHeaders/HeaderButton";
 import { Assignment, ClassAssignment, Classroom } from "../../util/base";
 import { getClassroomData } from "../../util/GetRequests";
 import { createNewAssignment, deleteAssignmentData, editAssignmentData } from "../../util/PostRequests";
+import { useAuth } from "../../hocs/AuthProvider";
 
 const LoadingOverlay = React.lazy(() => import("../../components/SuspenseLoader/LoadingOverlay"));
 const AssignmentList = React.lazy(() => import("../../components/classroom/AssignmentList"));
@@ -18,12 +19,19 @@ const SuccessSnackbar = React.lazy(() => import("../../components/snackbars/Succ
 
 function ClassroomPage() {
   const { classCode } = useParams();
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [classDetails, setClassDetails] = useState<Classroom>();
   const [seletced, setSelected] = useState<ClassAssignment>();
   const [editAssignment, setEditAssignment] = useState<ClassAssignment>();
   const [createAssign, setCreateAssign] = useState<boolean>(false);
   const [message, setMessage] = useState<string | null>(null);
   const studentListSection = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!user) navigate("/");
+    else if (!user.teacher) navigate("/student/app");
+  }, [user, navigate])
 
   useEffect(() => {
     if (classCode) {

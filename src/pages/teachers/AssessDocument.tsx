@@ -6,7 +6,7 @@ import Container from "@mui/material/Container";
 import { useParams } from "react-router-dom";
 // Animation
 import { AnimatePresence, motion } from 'framer-motion';
-import { analyzeDocument, getDocumentComparison, getFileContentFromURL, getFileStorageData } from '../../util/GetRequests';
+import { analyzeDocument, getFileContentFromURL, getFileStorageData } from '../../util/GetRequests';
 import { FileStorage } from '../../util/base';
 
 const FileAnalyzer = React.lazy(() => import("../../components/FileUpload/FileAnalyzer"));
@@ -14,7 +14,7 @@ const LoadingOverlay = React.lazy(() => import("../../components/SuspenseLoader/
 
 function AssessDocument() {
   const { fileUid, assignId } = useParams();
-  const [laoading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(true);
   const [fileData, setFileData] = useState<FileStorage>();
   const [textContent, setTextContent] = useState<string>("");
   const [similarContent, setSimilarContent] = useState<string>("");
@@ -37,31 +37,20 @@ function AssessDocument() {
   }, [fileUid])
 
   useEffect(() => {
-    if (fileData) {
-        if (fileData.originalityScore === 0.0 && assignId) {
-            analyzeDocument(fileData.file_id, parseInt(assignId)).then(data => {
-                if (data !== null) {
-                    setSources(data.similarSentences);
-                    setOriginality(100 - (data.cosineDistance * 100));
-                    setPlagiarizedFile(data.source ? data.source : null);
-                } else {
-                    getFileStorageData(fileData.fileUid).then(data => {
-                        setOriginality(100 - (data.originalityScore * 100));
-                    }).catch(err => console.log(err));
-                }
-            }).catch(err => console.log(err));
-            
-        } else {
-            if (fileData.parent) {
-                getDocumentComparison(fileData.file_id, fileData.parent.file_id).then(data => {
-                    setSources(data.similarSentences);
-                    setOriginality(100 - (data.cosineDistance * 100));
-                    setPlagiarizedFile(fileData.parent);
-                }).catch(err => console.log(err));
+    if (fileData && assignId) {
+        analyzeDocument(fileData.file_id, parseInt(assignId)).then(data => {
+            if (data !== null) {
+                setSources(data.similarSentences);
+                setOriginality(100 - (data.cosineDistance * 100));
+                setPlagiarizedFile(data.source ? data.source : null);
+                setLoading(false);
             } else {
-                setOriginality(100 - (fileData.originalityScore * 100));
+                getFileStorageData(fileData.fileUid).then(data => {
+                    setOriginality(100 - (data.originalityScore * 100));
+                    setLoading(false);
+                }).catch(err => console.log(err));
             }
-        }
+        }).catch(err => console.log(err));
     }
   }, [fileData, assignId])
 
@@ -75,20 +64,22 @@ function AssessDocument() {
 
 
   useEffect(() => {
-    const lines: string[] = textContent.split(". ");
+    if (!loading) {
+        const lines: string[] = textContent.split(". ");
 
-    setParagraphs(state => lines);
-    setLoading(false);
-  }, [textContent]);
+        setParagraphs(state => lines);
+    }
+  }, [textContent, loading]);
 
   //-------------------------------
 
    useEffect(() => {
-    const lines: string[] = similarContent.split(". ");
+    if (!loading) {
+        const lines: string[] = similarContent.split(". ");
 
-    setSimilarParagraphs(state => lines);
-    setLoading(false);
-  }, [similarContent]);
+        setSimilarParagraphs(state => lines);
+    }
+  }, [similarContent, loading]);
 
   const checkSources = (sentence: string): boolean => {
     for (let j = 0; j < sources.length; j++) {
@@ -140,7 +131,7 @@ function AssessDocument() {
             </AnimatePresence>
 
         </Container>
-        <LoadingOverlay open={laoading} />
+        <LoadingOverlay open={loading} />
     </>
   )
 }
